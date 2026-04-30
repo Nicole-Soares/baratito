@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:15
+    container_name: baratito_db
+    environment:
+      POSTGRES_DB: baratito_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5433:5432"
+
+  backend:
+    build: ./backend
+    container_name: baratito_backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/baratito_db
+
+  frontend:
+    build: ./frontend
+    container_name: baratito_frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend

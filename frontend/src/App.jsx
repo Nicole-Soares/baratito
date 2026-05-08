@@ -1,122 +1,162 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  const [query, setQuery] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [resultados, setResultados] = useState(null)
+  const [busquedaActual, setBusquedaActual] = useState('')
+  const inputRef = useRef(null)
+ 
+  const handleSearch = async () => {
+    // Validar campo vacío
+    if (!query.trim()) {
+      setError('Ingrese un producto')
+      inputRef.current?.focus()
+      return
+    }
+ 
+    setError('')
+ 
+    // Limpiar resultados anteriores antes de mostrar los nuevos
+    setResultados(null)
+    setLoading(true)
+    setBusquedaActual(query.trim())
+ 
+    try {
+      const res = await fetch(
+        `http://localhost:8080/api/productos/buscar?nombre=${encodeURIComponent(query.trim())}`
+      )
+      const data = await res.json()
+ 
+      if (!res.ok) {
+        setError(data.error || 'Ocurrió un error en la búsqueda')
+        setResultados(null)
+        return
+      }
+ 
+      setResultados(data)
+    } catch (err) {
+      setError('No se pudo conectar con el servidor')
+      setResultados(null)
+    } finally {
+      setLoading(false)
+    }
+  }
+ 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleSearch()
+  }
+ 
+  const handleInputChange = (e) => {
+    setQuery(e.target.value)
+    if (error) setError('')
+  }
+ 
+  const getPrecioMinimo = (precios) => {
+    return precios.reduce((min, p) => p.precio < min.precio ? p : min, precios[0])
+  }
+ 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="app">
+      <header className="app-header">
+        <h1 className="app-logo">Baratito</h1>
+        <p className="app-subtitle">Compará precios entre supermercados</p>
+      </header>
+ 
+      <main className="app-main">
+        {/* Barra de búsqueda */}
+        <div className="search-section">
+          <div className={`search-bar ${error ? 'search-bar--error' : ''}`}>
+            <span className="search-icon">🔍</span>
+            <input
+              ref={inputRef}
+              type="text"
+              className="search-input"
+              placeholder="Buscar producto..."
+              value={query}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+            />
+            <button
+              className="search-btn"
+              onClick={handleSearch}
+              disabled={loading}
+            >
+              {loading ? 'Buscando...' : 'Buscar'}
+            </button>
+          </div>
+ 
+          {/* Mensaje de error campo vacío */}
+          {error && (
+            <p className="search-error">⚠ {error}</p>
+          )}
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+ 
+        {/* Estado de carga */}
+        {loading && (
+          <div className="loading-state">
+            <div className="loading-spinner" />
+            <p>Buscando precios para <strong>"{busquedaActual}"</strong>...</p>
+          </div>
+        )}
+ 
+        {/* Resultados */}
+        {!loading && resultados !== null && (
+          <div className="results-section">
+            <p className="results-meta">
+              {resultados.total > 0
+                ? `${resultados.total} resultado${resultados.total !== 1 ? 's' : ''} para "${resultados.busqueda}"`
+                : `No se encontraron productos para "${resultados.busqueda}"`
+              }
+            </p>
+ 
+            {resultados.resultados.length === 0 && (
+              <div className="no-results">
+                <span className="no-results-icon">🛒</span>
+                <p>Probá con otro nombre o revisá la ortografía</p>
+              </div>
+            )}
+ 
+            <ul className="results-list">
+              {resultados.resultados.map((producto, i) => {
+                const mejor = getPrecioMinimo(producto.precios)
+                return (
+                  <li key={i} className="product-card">
+                    <div className="product-info">
+                      <span className="product-category">{producto.categoria}</span>
+                      <h3 className="product-name">{producto.nombre}</h3>
+                    </div>
+                    <div className="product-prices">
+                      {producto.precios
+                        .slice()
+                        .sort((a, b) => a.precio - b.precio)
+                        .map((p, j) => (
+                          <div
+                            key={j}
+                            className={`price-item ${p.supermercado === mejor.supermercado ? 'price-item--best' : ''}`}
+                          >
+                            <span className="price-super">{p.supermercado}</span>
+                            <span className="price-value">${p.precio.toLocaleString('es-AR')}</span>
+                            {p.supermercado === mejor.supermercado && (
+                              <span className="price-badge">MEJOR</span>
+                            )}
+                          </div>
+                        ))}
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )}
+      </main>
+    </div>
   )
 }
-
+ 
 export default App

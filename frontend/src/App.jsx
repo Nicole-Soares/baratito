@@ -40,7 +40,8 @@ function App() {
       }
  
       setResultados(data)
-    } catch (err) {
+
+    } catch (error) {
       setError('No se pudo conectar con el servidor')
       setResultados(null)
     } finally {
@@ -55,10 +56,6 @@ function App() {
   const handleInputChange = (e) => {
     setQuery(e.target.value)
     if (error) setError('')
-  }
- 
-  const getPrecioMinimo = (precios) => {
-    return precios.reduce((min, p) => p.precio < min.precio ? p : min, precios[0])
   }
  
   return (
@@ -123,34 +120,22 @@ function App() {
             )}
  
             <ul className="results-list">
-              {resultados.resultados.map((producto, i) => {
-                const mejor = getPrecioMinimo(producto.precios)
-                return (
-                  <li key={i} className="product-card">
-                    <div className="product-info">
-                      <span className="product-category">{producto.categoria}</span>
-                      <h3 className="product-name">{producto.nombre}</h3>
-                    </div>
-                    <div className="product-prices">
-                      {producto.precios
-                        .slice()
-                        .sort((a, b) => a.precio - b.precio)
-                        .map((p, j) => (
-                          <div
-                            key={j}
-                            className={`price-item ${p.supermercado === mejor.supermercado ? 'price-item--best' : ''}`}
-                          >
-                            <span className="price-super">{p.supermercado}</span>
-                            <span className="price-value">${p.precio.toLocaleString('es-AR')}</span>
-                            {p.supermercado === mejor.supermercado && (
-                              <span className="price-badge">MEJOR</span>
-                            )}
-                          </div>
-                        ))}
-                    </div>
-                  </li>
-                )
-              })}
+              {resultados.resultados.map((producto, i) => (
+                <li key={i} className="product-card">
+                  <div className="product-info">
+                    <span className="product-category">
+                      {producto.categoria}
+                    </span>
+                    <h3 className="product-name">
+                      {producto.nombre}
+                    </h3>
+                    <p>{producto.supermercado}</p>
+                    <strong>
+                      ${producto.precio.toLocaleString('es-AR')}
+                    </strong>
+                  </div>
+                </li>
+              ))}
             </ul>
           </div>
         )}

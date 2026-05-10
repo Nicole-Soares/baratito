@@ -1,7 +1,4 @@
 import { useState, useRef } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
 
 function App() {
@@ -13,7 +10,6 @@ function App() {
   const inputRef = useRef(null)
  
   const handleSearch = async () => {
-    // Validar campo vacío
     if (!query.trim()) {
       setError('Ingrese un producto')
       inputRef.current?.focus()
@@ -21,8 +17,6 @@ function App() {
     }
  
     setError('')
- 
-    // Limpiar resultados anteriores antes de mostrar los nuevos
     setResultados(null)
     setLoading(true)
     setBusquedaActual(query.trim())
@@ -91,7 +85,6 @@ function App() {
             </button>
           </div>
  
-          {/* Mensaje de error campo vacío */}
           {error && (
             <p className="search-error">⚠ {error}</p>
           )}
@@ -127,27 +120,30 @@ function App() {
                 const mejor = getPrecioMinimo(producto.precios)
                 return (
                   <li key={i} className="product-card">
+                    {/* Imagen placeholder */}
+                    <div className="product-img">
+                      {producto.imagen
+                        ? <img src={producto.imagen} alt={producto.nombre} />
+                        : <span className="product-img-placeholder">🛒</span>
+                      }
+                    </div>
+
+                    {/* Info central */}
                     <div className="product-info">
-                      <span className="product-category">{producto.categoria}</span>
-                      <h3 className="product-name">{producto.nombre}</h3>
+                      <div className="product-header">
+                        <a className="product-name">{producto.nombre}</a>
+                        <span className="product-super-tag">{mejor.supermercado}</span>
+                      </div>
+                      <div className="product-price-main">
+                        ${mejor.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                      </div>
+                      <div className="product-price-unit">
+                        ($ {mejor.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} x UN)
+                      </div>
                     </div>
-                    <div className="product-prices">
-                      {producto.precios
-                        .slice()
-                        .sort((a, b) => a.precio - b.precio)
-                        .map((p, j) => (
-                          <div
-                            key={j}
-                            className={`price-item ${p.supermercado === mejor.supermercado ? 'price-item--best' : ''}`}
-                          >
-                            <span className="price-super">{p.supermercado}</span>
-                            <span className="price-value">${p.precio.toLocaleString('es-AR')}</span>
-                            {p.supermercado === mejor.supermercado && (
-                              <span className="price-badge">MEJOR</span>
-                            )}
-                          </div>
-                        ))}
-                    </div>
+
+                    {/* Botón + */}
+                    <button className="product-add-btn">+</button>
                   </li>
                 )
               })}
@@ -158,5 +154,5 @@ function App() {
     </div>
   )
 }
- 
+
 export default App

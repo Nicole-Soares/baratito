@@ -34,7 +34,8 @@ function App() {
       }
  
       setResultados(data)
-    } catch (err) {
+
+    } catch (error) {
       setError('No se pudo conectar con el servidor')
       setResultados(null)
     } finally {
@@ -49,10 +50,6 @@ function App() {
   const handleInputChange = (e) => {
     setQuery(e.target.value)
     if (error) setError('')
-  }
- 
-  const getPrecioMinimo = (precios) => {
-    return precios.reduce((min, p) => p.precio < min.precio ? p : min, precios[0])
   }
  
   return (
@@ -117,7 +114,6 @@ function App() {
  
             <ul className="results-list">
               {resultados.resultados.map((producto, i) => {
-                const mejor = getPrecioMinimo(producto.precios)
                 return (
                   <li key={i} className="product-card">
                     {/* Imagen placeholder */}
@@ -132,13 +128,13 @@ function App() {
                     <div className="product-info">
                       <div className="product-header">
                         <a className="product-name">{producto.nombre}</a>
-                        <span className="product-super-tag">{mejor.supermercado}</span>
+                        <span className="product-super-tag">{producto.supermercado}</span>
                       </div>
                       <div className="product-price-main">
-                        ${mejor.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                        ${producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                       </div>
                       <div className="product-price-unit">
-                        ($ {mejor.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} x UN)
+                        ($ {producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} x UN)
                       </div>
                     </div>
 

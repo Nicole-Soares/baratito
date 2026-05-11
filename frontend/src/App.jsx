@@ -1,7 +1,4 @@
 import { useState, useRef } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
 
 function App() {
@@ -13,7 +10,6 @@ function App() {
   const inputRef = useRef(null)
  
   const handleSearch = async () => {
-    // Validar campo vacío
     if (!query.trim()) {
       setError('Ingrese un producto')
       inputRef.current?.focus()
@@ -21,8 +17,6 @@ function App() {
     }
  
     setError('')
- 
-    // Limpiar resultados anteriores antes de mostrar los nuevos
     setResultados(null)
     setLoading(true)
     setBusquedaActual(query.trim())
@@ -88,7 +82,6 @@ function App() {
             </button>
           </div>
  
-          {/* Mensaje de error campo vacío */}
           {error && (
             <p className="search-error">⚠ {error}</p>
           )}
@@ -120,22 +113,36 @@ function App() {
             )}
  
             <ul className="results-list">
-              {resultados.resultados.map((producto, i) => (
-                <li key={i} className="product-card">
-                  <div className="product-info">
-                    <span className="product-category">
-                      {producto.categoria}
-                    </span>
-                    <h3 className="product-name">
-                      {producto.nombre}
-                    </h3>
-                    <p>{producto.supermercado}</p>
-                    <strong>
-                      ${producto.precio.toLocaleString('es-AR')}
-                    </strong>
-                  </div>
-                </li>
-              ))}
+              {resultados.resultados.map((producto, i) => {
+                return (
+                  <li key={i} className="product-card">
+                    {/* Imagen placeholder */}
+                    <div className="product-img">
+                      {producto.imagen
+                        ? <img src={producto.imagen} alt={producto.nombre} />
+                        : <span className="product-img-placeholder">🛒</span>
+                      }
+                    </div>
+
+                    {/* Info central */}
+                    <div className="product-info">
+                      <div className="product-header">
+                        <a className="product-name">{producto.nombre}</a>
+                        <span className="product-super-tag">{producto.supermercado}</span>
+                      </div>
+                      <div className="product-price-main">
+                        ${producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                      </div>
+                      <div className="product-price-unit">
+                        ($ {producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} x UN)
+                      </div>
+                    </div>
+
+                    {/* Botón + */}
+                    <button className="product-add-btn">+</button>
+                  </li>
+                )
+              })}
             </ul>
           </div>
         )}
@@ -143,5 +150,5 @@ function App() {
     </div>
   )
 }
- 
+
 export default App

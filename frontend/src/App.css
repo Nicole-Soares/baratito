@@ -300,4 +300,10 @@ body {
   .product-add-btn {
     align-self: flex-end;
   }
+
+  .product-updated {
+    font-size: 0.85rem;
+    color: #777;
+    margin-top: 4px;
+  }
 }

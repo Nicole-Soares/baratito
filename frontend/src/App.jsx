@@ -8,7 +8,17 @@ function App() {
   const [resultados, setResultados] = useState(null)
   const [busquedaActual, setBusquedaActual] = useState('')
   const inputRef = useRef(null)
- 
+
+  const formatearFecha = (fechaIso) => {
+    const fecha = new Date(fechaIso)
+
+    return fecha.toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  }
+
   const handleSearch = async () => {
     if (!query.trim()) {
       setError('Ingrese un producto')
@@ -20,19 +30,19 @@ function App() {
     setResultados(null)
     setLoading(true)
     setBusquedaActual(query.trim())
- 
+
     try {
       const res = await fetch(
         `http://localhost:8080/api/productos/buscar?nombre=${encodeURIComponent(query.trim())}`
       )
       const data = await res.json()
- 
+
       if (!res.ok) {
         setError(data.error || 'Ocurrió un error en la búsqueda')
         setResultados(null)
         return
       }
- 
+
       setResultados(data)
 
     } catch (error) {
@@ -42,23 +52,23 @@ function App() {
       setLoading(false)
     }
   }
- 
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') handleSearch()
   }
- 
+
   const handleInputChange = (e) => {
     setQuery(e.target.value)
     if (error) setError('')
   }
- 
+
   return (
     <div className="app">
       <header className="app-header">
         <h1 className="app-logo">Baratito</h1>
         <p className="app-subtitle">Compará precios entre supermercados</p>
       </header>
- 
+
       <main className="app-main">
         {/* Barra de búsqueda */}
         <div className="search-section">
@@ -81,12 +91,12 @@ function App() {
               {loading ? 'Buscando...' : 'Buscar'}
             </button>
           </div>
- 
+
           {error && (
             <p className="search-error">⚠ {error}</p>
           )}
         </div>
- 
+
         {/* Estado de carga */}
         {loading && (
           <div className="loading-state">
@@ -94,7 +104,7 @@ function App() {
             <p>Buscando precios para <strong>"{busquedaActual}"</strong>...</p>
           </div>
         )}
- 
+
         {/* Resultados */}
         {!loading && resultados !== null && (
           <div className="results-section">
@@ -104,14 +114,14 @@ function App() {
                 : `No se encontraron productos para "${resultados.busqueda}"`
               }
             </p>
- 
+
             {resultados.resultados.length === 0 && (
               <div className="no-results">
                 <span className="no-results-icon">🛒</span>
                 <p>Probá con otro nombre o revisá la ortografía</p>
               </div>
             )}
- 
+
             <ul className="results-list">
               {resultados.resultados.map((producto, i) => {
                 return (
@@ -135,6 +145,9 @@ function App() {
                       </div>
                       <div className="product-price-unit">
                         ($ {producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} x UN)
+                      </div>
+                      <div className="product-updated">
+                          Actualizado el: {formatearFecha(producto.actualizado)}
                       </div>
                     </div>
 

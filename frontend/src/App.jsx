@@ -19,6 +19,17 @@ function App() {
     })
   }
 
+  const estaDesactualizado = (fechaIso) => {
+    const fecha = new Date(fechaIso)
+    const ahora = new Date()
+
+    const diferenciaMs = ahora - fecha
+
+    const diferenciaDias = diferenciaMs / (1000 * 60 * 60 * 24)
+
+    return diferenciaDias > 3
+  }
+
   const handleSearch = async () => {
     if (!query.trim()) {
       setError('Ingrese un producto')
@@ -146,7 +157,13 @@ function App() {
                       <div className="product-price-unit">
                         ($ {producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} x UN)
                       </div>
-                      <div className="product-updated">
+                      <div
+                        className={`product-updated ${
+                          estaDesactualizado(producto.actualizado)
+                            ? 'product-updated-warning'
+                            : ''
+                        }`}
+                      >
                           Actualizado el: {formatearFecha(producto.actualizado)}
                       </div>
                     </div>

@@ -6,6 +6,8 @@ services:
       POSTGRES_DB: baratito_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres123
+      TZ: UTC
+      PGTZ: UTC
     ports:
       - "5433:5432"
 
@@ -17,7 +19,10 @@ services:
     depends_on:
       - db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/baratito_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/baratito_db?serverTimezone=UTC&options=-c%20timezone=UTC
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres123
+      - JAVA_OPTS=-Duser.timezone=UTC
 
   frontend:
     build: ./frontend

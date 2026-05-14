@@ -60,7 +60,7 @@ public class ScraperMaster {
      */
     public Map<String, List<ProductoSchema>> buscarAgrupado(String query) {
         return buscarEnTodos(query).stream()
-                .collect(Collectors.groupingBy(ProductoSchema::source));
+                .collect(Collectors.groupingBy(ProductoSchema::getSource));
     }
 
     /**

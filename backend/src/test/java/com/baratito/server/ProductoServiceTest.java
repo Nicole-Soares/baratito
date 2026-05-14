@@ -110,6 +110,7 @@ class ProductoServiceTest {
         //chequear que estan en la base
         List<ProductoSchema> productosEnBD = productoRepository.findAll();
 
+        //chequeado que no se duplico
         assertEquals(1, productosEnBD.size());
         assertEquals(1, productos.size());
 

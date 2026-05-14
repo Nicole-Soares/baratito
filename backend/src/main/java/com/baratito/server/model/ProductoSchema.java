@@ -39,7 +39,7 @@ public class ProductoSchema {
     @Column(name = "precio", columnDefinition = "DOUBLE PRECISION CHECK (precio >= 0)")
     double precio;
 
-    @Column(name = "precioLista", columnDefinition = "DOUBLE PRECISION CHECK (precioLista >= 0)")
+    @Column(name = "precio_lista", columnDefinition = "DOUBLE PRECISION CHECK (precio_lista >= 0)")
     double precioLista;   // precio original sin descuento
 
     @Column(name = "actualizado")

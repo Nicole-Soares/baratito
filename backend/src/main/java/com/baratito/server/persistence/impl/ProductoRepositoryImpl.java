@@ -3,6 +3,7 @@ package com.baratito.server.persistence.impl;
 import com.baratito.server.model.ProductoSchema;
 import com.baratito.server.persistence.interfaces.ProductoRepository;
 import com.baratito.server.persistence.sql.ProductoSQLDAO;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Repository
 public class ProductoRepositoryImpl implements ProductoRepository {
 
     private final ProductoSQLDAO productoSQLDAO;
@@ -88,5 +90,15 @@ public ProductoRepositoryImpl(ProductoSQLDAO productoSQLDAO) {
 
         // se devuelve todo ordenado
         return productoSQLDAO.findByNombreContainingIgnoreCaseOrderByPrecioAsc(query);
+    }
+
+    @Override
+    public List<ProductoSchema> findAll() {
+        return productoSQLDAO.findAll();
+    }
+
+    @Override
+    public void deleteAll() {
+        productoSQLDAO.deleteAll();
     }
 }

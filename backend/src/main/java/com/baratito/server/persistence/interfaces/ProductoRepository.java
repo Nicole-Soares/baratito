@@ -8,4 +8,6 @@ public interface ProductoRepository {
 
     List<ProductoSchema> encontrarProductos(String query);
     List<ProductoSchema> saveAllYObtenerOrdenados(List<ProductoSchema> resultados, String query);
+    List<ProductoSchema> findAll();
+    void deleteAll();
 }

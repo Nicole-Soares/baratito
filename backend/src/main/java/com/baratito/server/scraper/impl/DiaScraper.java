@@ -8,14 +8,14 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class CarrefourScraper implements Scraper {
+public class DiaScraper implements Scraper {
 
-    private static final String BASE_URL = "https://www.carrefour.com.ar";
-    private static final String SOURCE   = "carrefour";
+    private static final String BASE_URL = "https://diaonline.supermercadosdia.com.ar";
+    private static final String SOURCE   = "diaonline";
 
     private final VtexCore vtexCore;
 
-    public CarrefourScraper(VtexCore vtexCore) {
+    public DiaScraper(VtexCore vtexCore) {
         this.vtexCore = vtexCore;
     }
 

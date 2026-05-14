@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -116,14 +117,14 @@ public class VtexCore {
                     : "";
 
             return new ProductoSchema(
-                    producto.productId(),
                     props.source(),
                     producto.productName(),
                     props.baseUrl() + "/" + producto.linkText() + "/p",
                     imagen,
-                    oferta.availableQuantity() == 0,
+                    oferta.availableQuantity() > 0,   // disponibilidad: true si hay stock
                     oferta.price(),
-                    oferta.listPrice()
+                    oferta.listPrice(),
+                    LocalDate.now()
             );
         } catch (Exception e) {
             return null;

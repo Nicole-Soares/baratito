@@ -285,6 +285,17 @@ body {
   background: var(--accent-hover);
 }
 
+.product-updated {
+  font-size: 0.85rem;
+  color: #777
+  margin-top: 4px
+}
+
+.product-updated-warning {
+ color: orange;
+ font-weight: bold;
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 520px) {
   .product-card {

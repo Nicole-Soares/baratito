@@ -8,7 +8,25 @@ function App() {
   const [resultados, setResultados] = useState(null)
   const [busquedaActual, setBusquedaActual] = useState('')
   const inputRef = useRef(null)
- 
+
+  const formatearFecha = (fechaIso) => {
+      const fecha = new Date(fechaIso)
+
+      return fecha.toLocaleDateString('es-AR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        })
+    }
+
+  const estaDesactualizado = (fechaIso) => {
+      const fecha = new Date(fechaIso)
+      const ahora = new Date()
+
+      const diferenciaMs   = ahora - fecha
+      const diferenciaDias = diferenciaMs / (1000 * 60 * 60 * 24)
+      return diferenciaDias > 3
+ }
   const handleSearch = async () => {
     if (!query.trim()) {
       setError('Ingrese un producto')
@@ -128,13 +146,21 @@ function App() {
                     <div className="product-info">
                       <div className="product-header">
                         <a className="product-name">{producto.nombre}</a>
-                        <span className="product-super-tag">{producto.supermercado}</span>
+                        <span className="product-super-tag">{producto.source.toUpperCase()}</span>
                       </div>
                       <div className="product-price-main">
                         ${producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                       </div>
                       <div className="product-price-unit">
                         ($ {producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} x UN)
+                      </div>
+                      <div className={`product-updated ${
+                          estaDesactualizado(producto.actualizado)
+                            ? 'product-updated--warning'
+                            : ''
+                           }`}
+                       >
+                          Actualizado el: {formatearFecha(producto.actualizado)}
                       </div>
                     </div>
 

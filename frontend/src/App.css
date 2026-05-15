@@ -245,8 +245,8 @@ body {
 }
 
 .product-price-main {
-  font-size: 1.4rem;
-  font-weight: 420;
+  font-size: 1.3rem;
+  font-weight: 350;
   color: #c4b5fd;
   margin-top: 4px;
 }
@@ -259,7 +259,7 @@ body {
 }
 
 .product-price-unit {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
 }
 

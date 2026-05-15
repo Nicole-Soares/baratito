@@ -146,7 +146,7 @@ function App() {
                     <div className="product-info">
                       <div className="product-header">
                         <a className="product-name">{producto.nombre}</a>
-                        <span className="product-super-tag">{producto.supermercado}</span>
+                        <span className="product-super-tag">{producto.source.toUpperCase()}</span>
                       </div>
                       <div className="product-price-main">
                         ${producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}

@@ -65,7 +65,6 @@ public class ProductoService {
         LocalDate hoy = LocalDate.now();
 
         // Esto verifica si todos los productos son de hoy
-        // (anyMatch si te basta con que uno solo lo sea)
         return productosEnBase.stream()
                 .allMatch(p -> hoy.equals(p.getActualizado()));
     }

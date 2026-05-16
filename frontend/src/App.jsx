@@ -9,15 +9,7 @@ function App() {
   const [busquedaActual, setBusquedaActual] = useState('')
   const inputRef = useRef(null)
 
-  const formatearFecha = (fechaIso) => {
-    const fecha = new Date(fechaIso)
-    return fecha.toLocaleDateString('es-AR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    })
-  }
-
+  
   const estaDesactualizado = (fechaIso) => {
     const fecha = new Date(fechaIso)
     const ahora = new Date()

@@ -126,8 +126,8 @@ function App() {
                     <div className="product-price-unit">
                       (${producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} x UN)
                     </div>
-                    <div className={`product-updated ${estaDesactualizado(producto.actualizado) ? 'product-updated--warning' : ''}`}>
-                      Actualizado el: {formatearFecha(producto.actualizado)}
+                    <div className={`product-updated`}>
+                      Actualizado el: {producto.actualizado}
                     </div>
                   </div>
 

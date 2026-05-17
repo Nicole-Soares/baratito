@@ -1,6 +1,7 @@
 package com.baratito.server.service;
 
 import com.baratito.server.model.ProductoSchema;
+import com.baratito.server.persistence.interfaces.CacheRepository;
 import com.baratito.server.persistence.interfaces.ProductoRepository;
 import com.baratito.server.scraper.ScraperMaster;
 import org.springframework.stereotype.Service;
@@ -10,19 +11,20 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Objects.isNull;
 
 @Service
 public class ProductoService {
 
     private final ScraperMaster scraperMaster;
     private final ProductoRepository productoRepository;
+    private final CacheRepository cacheRepository;
 
-    public ProductoService(ScraperMaster scraperMaster, ProductoRepository productoRepository) {
-
+    public ProductoService(ScraperMaster scraperMaster,
+                           ProductoRepository productoRepository,
+                           CacheRepository cacheRepository) {
         this.scraperMaster = scraperMaster;
         this.productoRepository = productoRepository;
-
+        this.cacheRepository = cacheRepository;
     }
 
     // ──────────────────────────── Búsqueda ────────────────────────────────────
@@ -33,40 +35,21 @@ public class ProductoService {
      * @return lista de productos de todos los supermercados, ordenada por precio
      */
     public List<ProductoSchema> buscarProductos(String query) {
-
-
-        List<ProductoSchema> productosEnBase = productoRepository.encontrarProductos(query);
-
-        //chequeo si se encuentra en base de datos y / o estan desactualizados
-
-        if (productosEnBase.isEmpty() || !estanActualizados (productosEnBase)) {
-
-            //busco en el scraper
-            List<ProductoSchema> resultados = scraperMaster.buscarEnTodos(query);
-
-
-            // guardar en base y retornar de manera ordenada
-            //query es el tipo de producto
-            return productoRepository.saveAllYObtenerOrdenados(resultados, query);
-
-        } else {
-
-            return productosEnBase;
-
-        }
-
-    }
-
-    private boolean estanActualizados(List<ProductoSchema> productosEnBase) {
-        if (productosEnBase.isEmpty()) {
-            return false;
-        }
-
+        String queryNorm = query.trim().toLowerCase();
         LocalDate hoy = LocalDate.now();
 
-        // Esto verifica si todos los productos son de hoy
-        return productosEnBase.stream()
-                .allMatch(p -> hoy.equals(p.getActualizado()));
+        if (cacheRepository.existeBusqueda(queryNorm, hoy)) {
+            return productoRepository.encontrarProductos(queryNorm);
+        }
+
+        // Lógica de caché:
+        // - Si esta query exacta ya fue buscada hoy → devuelve desde la BD (sin scrapear)
+        // - Si no → scrapea, guarda en BD, registra la query en el caché
+        List<ProductoSchema> resultados = scraperMaster.buscarEnTodos(queryNorm);
+
+        cacheRepository.registrarBusqueda(queryNorm, hoy);
+
+        return productoRepository.saveAllYObtenerOrdenados(resultados, queryNorm);
     }
 
     /**

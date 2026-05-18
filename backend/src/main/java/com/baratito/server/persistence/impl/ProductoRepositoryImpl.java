@@ -75,14 +75,12 @@ public ProductoRepositoryImpl(ProductoSQLDAO productoSQLDAO) {
                         // Si existe: Actualizamos
                         existente.setPrecio(p.getPrecio());
                         existente.setPrecioLista(p.getPrecioLista());
-                        existente.setDisponibilidad(true);
-                        existente.setActualizado(hoy);
+                        existente.setDisponibilidad(p.isDisponibilidad());
+                        existente.setActualizado(p.getActualizado());
                         productoSQLDAO.save(existente);
                     },
                     () -> {
-                        // Si es nuevo: Lo creamos con disponibilidad true
-                        p.setDisponibilidad(true);
-                        p.setActualizado(hoy);
+                        // Si es nuevo: Lo creamos
                         productoSQLDAO.save(p);
                     }
             );

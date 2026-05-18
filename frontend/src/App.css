@@ -258,6 +258,14 @@ body {
   border-radius: 8px;
 }
 
+.product-price-lista {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  text-decoration: line-through;
+  margin-left: 8px;
+}
+
 .product-price-unit {
   font-size: 0.75rem;
   color: var(--text-muted);

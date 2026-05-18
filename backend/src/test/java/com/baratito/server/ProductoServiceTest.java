@@ -1,6 +1,7 @@
 package com.baratito.server;
 
 import com.baratito.server.model.ProductoSchema;
+import com.baratito.server.persistence.interfaces.CacheRepository;
 import com.baratito.server.persistence.interfaces.ProductoRepository;
 import com.baratito.server.scraper.ScraperMaster;
 import com.baratito.server.service.ProductoService;
@@ -35,6 +36,8 @@ class ProductoServiceTest {
 
     @Autowired
     private ProductoRepository productoRepository;
+    @Autowired
+    private CacheRepository cacheRepository;
 
     @Mock
     private ScraperMaster scraperMaster; // Scraper mockeado
@@ -47,7 +50,9 @@ class ProductoServiceTest {
 
         productoRepository.deleteAll();
 
-        productoService = new ProductoService(scraperMaster, productoRepository);
+        cacheRepository.deleteAll();
+
+        productoService = new ProductoService(scraperMaster, productoRepository, cacheRepository);
     }
 
     @Test

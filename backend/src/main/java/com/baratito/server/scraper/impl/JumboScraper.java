@@ -144,7 +144,7 @@ public class JumboScraper implements Scraper {
                 imagen,
                 oferta.isAvailable(),
                 oferta.price(),
-                oferta.listPrice(),
+                oferta.priceWithoutDiscount() > 0 ? oferta.priceWithoutDiscount() : oferta.price(),
                 LocalDate.now()
         );
     }

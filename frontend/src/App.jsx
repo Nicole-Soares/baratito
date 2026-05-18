@@ -92,15 +92,18 @@ function App() {
 
         {!loading && resultados !== null && (
           <div className="results-section">
-            <p className="results-meta">
-              {resultados.total > 0
-                ? `${resultados.total} resultado${resultados.total !== 1 ? 's' : ''} para "${resultados.busqueda}"`
-                : `No se encontraron productos para "${resultados.busqueda}"`
-              }
-            </p>
-
-            <ul className="results-list">
-              {resultados.resultados.map((producto, i) => (
+            {(() => {
+              const disponibles = resultados.resultados.filter(p => p.disponibilidad)
+              return (
+                <>
+                  <p className="results-meta">
+                    {disponibles.length > 0
+                      ? `${disponibles.length} resultado${disponibles.length !== 1 ? 's' : ''} para "${resultados.busqueda}"`
+                      : `No se encontraron productos para "${resultados.busqueda}"`
+                    }
+                  </p>
+                  <ul className="results-list">
+                    {disponibles.map((producto, i) => (
                 <li key={i} className="product-card">
                   <div className="product-img">
                     {producto.imagen ? (
@@ -114,11 +117,16 @@ function App() {
                     <a className="product-name">{producto.nombre}</a>
                     <div className="product-price-main">
                       ${producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                      {producto.precioLista > producto.precio && (
+                        <span className="product-price-lista">
+                          ${producto.precioLista.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                        </span>
+                      )}
                     </div>
                     <div className="product-price-unit">
                       (${producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} x UN)
                     </div>
-                    <div className={`product-updated`}>
+                    <div className="product-updated">
                       Actualizado el: {producto.actualizado}
                     </div>
                   </div>
@@ -134,8 +142,11 @@ function App() {
                     </div>
                   </div>
                 </li>
-              ))}
-            </ul>
+                    ))}
+                  </ul>
+                </>
+              )
+            })()}
           </div>
         )}
       </main>

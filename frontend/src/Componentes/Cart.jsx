@@ -30,7 +30,7 @@ function Cart() {
   return (
     <div className="cart-container">
 
-      <h1>Mi carrito</h1>
+      <h1 className="cart-title">Mi carrito</h1>
 
       <button className="back-button"
               onClick={() => navigate('/')} >
@@ -38,54 +38,59 @@ function Cart() {
       </button>
 
       <div className="cart-list">
-
-        {cart.productos.map(producto => (
-
-          <div
-            key={producto.id}
-            className="cart-card"
-          >
-
-            <img
-              src={producto.imagen}
-              alt={producto.nombre}
-              width="120"
-            />
-
-            <div>
-
-              <h3>{producto.nombre}</h3>
-
-              <p>
-                Supermercado: {producto.source}
-              </p>
-
-              <p>
-                Precio: ${producto.precio}
-              </p>
-
-              <p>
-                Cantidad: {producto.cantidad}
-              </p>
-
-              <p>
-                Subtotal: $
-                {(producto.precio * producto.cantidad).toLocaleString('es-AR')}
-              </p>
-
-            </div>
-
+        {cart.productos.length === 0 ? (
+          <div className="empty-cart">
+            <span className="empty-cart-icon">
+              🛒
+            </span>
+            <h2>
+              El carrito está vacío
+            </h2>
+            <p>
+              Agregá productos para comenzar
+            </p>
           </div>
-
-        ))}
-
+        ) : (
+          cart.productos.map(producto => (
+            <div key={producto.id}
+                 className="cart-card">
+              <div className="cart-left">
+                <img src={producto.imagen}
+                     alt={producto.nombre}
+                     className="cart-image" />
+                <div className="cart-info">
+                  <h3>{producto.nombre}</h3>
+                  <p className="cart-source">
+                    {producto.source}
+                  </p>
+                  <p className="cart-price">
+                    ${producto.precio}
+                  </p>
+                  <p className="cart-quantity">
+                    Cantidad: {producto.cantidad}
+                  </p>
+                  <p className="cart-subtotal">
+                    Subtotal: ${(producto.precio * producto.cantidad).toLocaleString('es-AR')}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
+      {cart.productos.length > 0 && (
+        <div className="cart-total">
+          <span>Total del carrito</span>
+          <span> ${cart.total.toLocaleString('es-AR')}</span>
+        </div>
+      )}
 
       <h2>
         Total: ${cart.total.toLocaleString('es-AR')}
       </h2>
 
     </div>
+    
   )
 }
 

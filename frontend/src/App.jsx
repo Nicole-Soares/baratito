@@ -56,6 +56,7 @@ function App() {
     if (error) setError('')
   }
 
+
   return (
     <div className="app">
       <header className="app-header">
@@ -131,16 +132,23 @@ function App() {
                     </div>
                   </div>
 
-                  <div className="product-actions-container">
-                    <div className="product-actions-group">
-                      <img
-                        className="supermarket-logo"
-                        src={`/logos/${producto.source.toLowerCase()}.png`}
-                        alt={producto.source}
-                      />
-                      <button className="product-add-btn">+</button>
-                    </div>
+                <div className="product-actions-container">
+                  <div className="supermarket-info">
+                    <img
+                      className="supermarket-logo"
+                      src={`/logos/${producto.source.toLowerCase()}.png`}
+                      alt={producto.source}
+                    />
                   </div>
+                  <div className="product-buttons">
+                    <button className="product-add-btn">+</button>
+                     <a href={producto.link} target="_blank" rel="noopener noreferrer">
+                        <button className="product-go-btn">Ver en tienda</button>
+                    </a>
+                  </div>
+                </div>
+
+
                 </li>
                     ))}
                   </ul>

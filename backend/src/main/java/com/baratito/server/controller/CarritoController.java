@@ -1,63 +1,49 @@
 package com.baratito.server.controller;
 
+import com.baratito.server.service.CarritoService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/carrito")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 public class CarritoController {
 
-    private static final List<Map<String, Object>> CARRITO_MOCK = List.of(
+    private final CarritoService carritoService;
 
-            Map.of(
-                    "id", 1,
-                    "nombre", "Leche Entera La Serenísima (1L)",
-                    "source", "Coto",
-                    "precio", 1190,
-                    "cantidad", 2,
-                    "imagen", "https://imagenes.preciosclaros.gob.ar/productos/7793940170005.jpg"
-            ),
-
-            Map.of(
-                    "id", 2,
-                    "nombre", "Yerba Mate Playadito (500g)",
-                    "source", "Carrefour",
-                    "precio", 1450,
-                    "cantidad", 1,
-                    "imagen", "https://imagenes.preciosclaros.gob.ar/productos/7793704000230.jpg"
-            ),
-
-            Map.of(
-                    "id", 3,
-                    "nombre", "Fideos Spaghetti (500g)",
-                    "source", "Changomas",
-                    "precio", 710,
-                    "cantidad", 3,
-                    "imagen", "https://imagenes.preciosclaros.gob.ar/productos/7790070413729.jpg"
-            )
-    );
+    public CarritoController(CarritoService carritoService) {
+        this.carritoService = carritoService;
+    }
 
     @GetMapping
     public ResponseEntity<?> obtenerCarrito() {
-
-        double total = CARRITO_MOCK.stream()
-                .mapToDouble(item ->
-                        ((Integer) item.get("cantidad")) *
-                                ((Integer) item.get("precio"))
-                )
-                .sum();
-
         return ResponseEntity.ok(Map.of(
-                "productos", CARRITO_MOCK,
-                "total", total
+                "productos", carritoService.getItems(),
+                "total", carritoService.getTotal()
         ));
     }
 
+    @PostMapping("/{id}")
+    public ResponseEntity<?> agregar(@PathVariable Long id) {
+        try {
+            carritoService.agregar(id);
+            return ResponseEntity.ok(Map.of(
+                    "productos", carritoService.getItems(),
+                    "total", carritoService.getTotal()
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> quitar(@PathVariable Long id) {
+        carritoService.quitar(id);
+        return ResponseEntity.ok(Map.of(
+                "productos", carritoService.getItems(),
+                "total", carritoService.getTotal()
+        ));
+    }
 }

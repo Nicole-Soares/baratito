@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react'
-import Cart from './Cart'
 import { useNavigate } from 'react-router-dom'
 import './Home.css'
 
@@ -9,15 +8,9 @@ function Home() {
   const [loading, setLoading] = useState(false)
   const [resultados, setResultados] = useState(null)
   const [busquedaActual, setBusquedaActual] = useState('')
+  const [agregados, setAgregados] = useState({}) // id -> true para feedback visual
   const inputRef = useRef(null)
   const navigate = useNavigate()
-  
-  const estaDesactualizado = (fechaIso) => {
-    const fecha = new Date(fechaIso)
-    const ahora = new Date()
-    const diferenciaMs = ahora - fecha
-    return (diferenciaMs / (1000 * 60 * 60 * 24)) > 3
-  }
 
   const handleSearch = async () => {
     if (!query.trim()) {
@@ -41,7 +34,7 @@ function Home() {
         return
       }
       setResultados(data)
-    } catch (error) {
+    } catch {
       setError('No se pudo conectar con el servidor')
       setResultados(null)
     } finally {
@@ -58,20 +51,45 @@ function Home() {
     if (error) setError('')
   }
 
+  const handleAgregar = async (productoId) => {
+    try {
+      await fetch(`http://localhost:8080/api/carrito/${productoId}`, {
+        method: 'POST'
+      })
+      setAgregados(prev => ({ ...prev, [productoId]: true }))
+      setTimeout(() => {
+        setAgregados(prev => ({ ...prev, [productoId]: false }))
+      }, 1500)
+    } catch {
+      setError('No se pudo agregar al carrito')
+    }
+  }
+
   return (
     <div className="app">
+      {/* POPUP */}
+      {Object.values(agregados).some(v => v) && (
+      <div style={{
+        position: 'fixed',
+        bottom: '24px',
+        right: '24px',
+        background: '#4CAF50',
+        color: 'white',
+        padding: '12px 20px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+        fontWeight: 'bold',
+        zIndex: 1000
+      }}>
+        ✓ Se agregó al carrito
+      </div>
+      )}
       <header className="app-header">
-
-        <button className="cart-button"
-                onClick={() => navigate('/carrito')} >
+        <button className="cart-button" onClick={() => navigate('/carrito')}>
           🛒 Carrito
         </button>
-        <h1 className="app-logo">
-          Baratito
-        </h1>
-        <p className="app-subtitle">
-          Compará precios entre supermercados
-        </p>
+        <h1 className="app-logo">Baratito</h1>
+        <p className="app-subtitle">Compará precios entre supermercados</p>
       </header>
 
       <main className="app-main">
@@ -115,44 +133,49 @@ function Home() {
                   </p>
                   <ul className="results-list">
                     {disponibles.map((producto, i) => (
-                <li key={i} className="product-card">
-                  <div className="product-img">
-                    {producto.imagen ? (
-                      <img src={producto.imagen} alt={producto.nombre} />
-                    ) : (
-                      <span className="product-img-placeholder">🛒</span>
-                    )}
-                  </div>
+                      <li key={i} className="product-card">
+                        <div className="product-img">
+                          {producto.imagen ? (
+                            <img src={producto.imagen} alt={producto.nombre} />
+                          ) : (
+                            <span className="product-img-placeholder">🛒</span>
+                          )}
+                        </div>
 
-                  <div className="product-info">
-                    <a className="product-name">{producto.nombre}</a>
-                    <div className="product-price-main">
-                      ${producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                      {producto.precioLista > producto.precio && (
-                        <span className="product-price-lista">
-                          ${producto.precioLista.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                        </span>
-                      )}
-                    </div>
-                    <div className="product-price-unit">
-                      (${producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} x UN)
-                    </div>
-                    <div className="product-updated">
-                      Actualizado el: {producto.actualizado}
-                    </div>
-                  </div>
+                        <div className="product-info">
+                          <a className="product-name">{producto.nombre}</a>
+                          <div className="product-price-main">
+                            ${producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                            {producto.precioLista > producto.precio && (
+                              <span className="product-price-lista">
+                                ${producto.precioLista.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                              </span>
+                            )}
+                          </div>
+                          <div className="product-price-unit">
+                            (${producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} x UN)
+                          </div>
+                          <div className="product-updated">
+                            Actualizado el: {producto.actualizado}
+                          </div>
+                        </div>
 
-                  <div className="product-actions-container">
-                    <div className="product-actions-group">
-                      <img
-                        className="supermarket-logo"
-                        src={`/logos/${producto.source.toLowerCase()}.png`}
-                        alt={producto.source}
-                      />
-                      <button className="product-add-btn">+</button>
-                    </div>
-                  </div>
-                </li>
+                        <div className="product-actions-container">
+                          <div className="product-actions-group">
+                            <img
+                              className="supermarket-logo"
+                              src={`/logos/${producto.source.toLowerCase()}.png`}
+                              alt={producto.source}
+                            />
+                            <button
+                              className={`product-add-btn ${agregados[producto.id] ? 'product-add-btn--added' : ''}`}
+                              onClick={() => handleAgregar(producto.id)}
+                            >
+                              {agregados[producto.id] ? '✓' : '+'}
+                            </button>
+                          </div>
+                        </div>
+                      </li>
                     ))}
                   </ul>
                 </>

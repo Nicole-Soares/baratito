@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Home from './Componentes/Home'
-import Cart from './Componentes/Cart'
+import Home from './pages/home/Home'
+import Cart from './pages/cart/Cart'
 import { CartProvider } from './context/CartContext'
 import { SearchProvider } from './context/SearchContext'
 

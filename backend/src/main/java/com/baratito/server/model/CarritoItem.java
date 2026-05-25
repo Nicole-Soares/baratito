@@ -14,7 +14,9 @@ public class CarritoItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // este es el id del registro en la tabla
 
+
     @Column(name = "producto_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonProperty("productoId")
     private Long productoId; // este es el id del producto real
 
     private String nombre;
@@ -33,5 +35,11 @@ public class CarritoItem {
     }
 
     public CarritoItem() {} // constructor vacío para JPA
+
+    // Agrega el getter explícito abajo por si Lombok está teniendo conflicto
+    public Long getProductoId() {
+        return this.productoId;
+    }
+
 }
 

@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public interface CarritoRepository {
     Optional<CarritoItem> findById(Long productoId);
+    
 
     List<CarritoItem> findAll();
 
@@ -14,4 +15,7 @@ public interface CarritoRepository {
 
     void delete(CarritoItem item);
 
+    void deleteAll();
+
+    Optional<CarritoItem> findByProductoId(Long productoId);
 }

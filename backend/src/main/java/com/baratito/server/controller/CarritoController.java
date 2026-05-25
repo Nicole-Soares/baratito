@@ -38,9 +38,9 @@ public class CarritoController {
         }
     }
 
-    @DeleteMapping("/registro/{id}")
-    public ResponseEntity<?> decrementarPorRegistro(@PathVariable Long id) {
-        carritoService.decrementarPorRegistro(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> decrementar(@PathVariable Long id) {
+        carritoService.decrementar(id);
         return ResponseEntity.ok(Map.of(
                 "productos", carritoService.getItems(),
                 "total", carritoService.getTotal()

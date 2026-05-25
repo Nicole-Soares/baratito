@@ -1,12 +1,12 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSearch } from '../context/SearchContext'
-import { useCart } from '../context/CartContext'
+import { useSearch } from '../../context/SearchContext'
+import { useCart } from '../../context/CartContext'
 import './Home.css'
 
 function Home() {
   const [query, setQuery] = useState('')
-  const [agregados, setAgregados] = useState({}) // id -> true para feedback visual
+  const [agregados, setAgregados] = useState({})
   const { cart, agregarProducto, quitarProducto } = useCart()
   const { resultados, setResultados, busquedaActual, setBusquedaActual, error, setError, loading, setLoading } = useSearch()
   const [mensajeCarrito, setMensajeCarrito] = useState('')
@@ -19,13 +19,13 @@ function Home() {
     const handleIncrement = async (productoId, nombreProducto) => {
       const msg = await agregarProducto(productoId, nombreProducto)
       setMensajeCarrito({ texto: msg, tipo: 'agregado' })
-      setTimeout(() => setMensajeCarrito(''), 2000)
+      setTimeout(() => setMensajeCarrito(''), 1000)
     }
 
   const handleDecrement = async (productoId, nombreProducto) => {
     const msg = await quitarProducto(productoId, nombreProducto)
     setMensajeCarrito({ texto: msg, tipo: 'quitado' })
-    setTimeout(() => setMensajeCarrito(''), 2000)
+    setTimeout(() => setMensajeCarrito(''), 1000)
   }
 
 
@@ -181,23 +181,25 @@ const handleAgregar = async (productoId, nombreProducto) => {
                               alt={producto.source}
                             />
 
-                         {(() => {
-                           const item = cart.productos.find(p => p.id === producto.id)
-                           return item ? (
-                             <div className="quantity-controls">
-                               <button onClick={() => handleDecrement(producto.id, producto.nombre)}>-</button>
-                               <span>{item.cantidad}</span>
-                               <button onClick={() => handleIncrement(producto.id, producto.nombre)}>+</button>
-                             </div>
-                           ) : (
-                             <button
-                               className="product-add-btn"
-                               onClick={() => handleIncrement(producto.id, producto.nombre)}
-                             >
-                               +
-                             </button>
-                           )
-                         })()}
+                       {(() => {
+                         // Comparamos por nombre e imagen. Como son textos idénticos, JavaScript no falla jamás.
+                         const item = cart.productos.find(p => p.nombre === producto.nombre && p.imagen === producto.imagen)
+
+                         return item ? (
+                           <div className="quantity-controls" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                             <button onClick={() => handleDecrement(producto.id, producto.nombre)}>-</button>
+                             <span style={{ color: 'white' }}>{item.cantidad}</span>
+                             <button onClick={() => handleIncrement(producto.id, producto.nombre)}>+</button>
+                           </div>
+                         ) : (
+                           <button
+                             className="product-add-btn"
+                             onClick={() => handleIncrement(producto.id, producto.nombre)}
+                           >
+                             +
+                           </button>
+                         )
+                       })()}
                           </div>
                         </div>
 

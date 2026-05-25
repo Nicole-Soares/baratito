@@ -284,7 +284,7 @@ body {
   color: #888;
 }
 
-.product-add-btn {
+.product-add-btn, .product-go-btn{
   width: 48px;
   height: 42px;
   border-radius: 8px;
@@ -298,10 +298,19 @@ body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background var(--transition);
   align-self: flex-end;
   margin-top: auto;
   transition: all 0.2s ease;
+}
+
+a {
+  text-decoration: none;
+}
+
+.product-go-btn{
+   width: auto;
+   padding: 0 12px;
+   font-size: 1rem;
 }
 
 .product-updated {
@@ -333,21 +342,30 @@ body {
   padding: 2px;
 }
 .product-actions-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-width: 80px;
-  flex-shrink: 0;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   gap: 8px;
+   min-width: 80px;
+   flex-shrink: 0;
 }
 
-.product-add-btn:hover {
+.product-buttons {
+   display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+
+
+.product-add-btn:hover,
+.product-go-btn:hover{
   background: var(--accent-hover);
   transform: scale(1.05);
 }
 
-.product-add-btn:active {
+.product-add-btn:active,
+.product-go-btn:active{
   transform: scale(0.95);
 }
 

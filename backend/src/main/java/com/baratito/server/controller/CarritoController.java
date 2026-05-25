@@ -38,12 +38,15 @@ public class CarritoController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> quitar(@PathVariable Long id) {
-        carritoService.quitar(id);
+    @DeleteMapping("/registro/{id}")
+    public ResponseEntity<?> decrementarPorRegistro(@PathVariable Long id) {
+        carritoService.decrementarPorRegistro(id);
         return ResponseEntity.ok(Map.of(
                 "productos", carritoService.getItems(),
                 "total", carritoService.getTotal()
         ));
     }
+
+
+
 }

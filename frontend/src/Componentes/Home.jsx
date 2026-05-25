@@ -1,16 +1,33 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useSearch } from '../context/SearchContext'
+import { useCart } from '../context/CartContext'
 import './Home.css'
 
 function Home() {
   const [query, setQuery] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [resultados, setResultados] = useState(null)
-  const [busquedaActual, setBusquedaActual] = useState('')
   const [agregados, setAgregados] = useState({}) // id -> true para feedback visual
+  const { cart, agregarProducto, quitarProducto } = useCart()
+  const { resultados, setResultados, busquedaActual, setBusquedaActual, error, setError, loading, setLoading } = useSearch()
+  const [mensajeCarrito, setMensajeCarrito] = useState('')
   const inputRef = useRef(null)
   const navigate = useNavigate()
+
+
+  const totalProductos = cart.productos.reduce((acc, p) => acc + p.cantidad, 0)
+
+    const handleIncrement = async (productoId, nombreProducto) => {
+      const msg = await agregarProducto(productoId, nombreProducto)
+      setMensajeCarrito({ texto: msg, tipo: 'agregado' })
+      setTimeout(() => setMensajeCarrito(''), 2000)
+    }
+
+  const handleDecrement = async (productoId, nombreProducto) => {
+    const msg = await quitarProducto(productoId, nombreProducto)
+    setMensajeCarrito({ texto: msg, tipo: 'quitado' })
+    setTimeout(() => setMensajeCarrito(''), 2000)
+  }
+
 
   const handleSearch = async () => {
     if (!query.trim()) {
@@ -51,47 +68,43 @@ function Home() {
     if (error) setError('')
   }
 
-  const handleAgregar = async (productoId) => {
-    try {
-      await fetch(`http://localhost:8080/api/carrito/${productoId}`, {
-        method: 'POST'
-      })
-      setAgregados(prev => ({ ...prev, [productoId]: true }))
-      setTimeout(() => {
-        setAgregados(prev => ({ ...prev, [productoId]: false }))
-      }, 1500)
-    } catch {
-      setError('No se pudo agregar al carrito')
-    }
+const handleAgregar = async (productoId, nombreProducto) => {
+  try {
+    await fetch(`http://localhost:8080/api/carrito/${productoId}`, {
+      method: 'POST'
+    })
+    setAgregados(prev => ({ ...prev, [productoId]: true }))
+    setMensajeCarrito(`✓ ${nombreProducto} se agregó al carrito`)
+
+    setTimeout(() => {
+      setAgregados(prev => ({ ...prev, [productoId]: false }))
+      setMensajeCarrito('')
+    }, 2000) // dura 2 segundos
+  } catch {
+    setError('No se pudo agregar al carrito')
   }
+}
 
   return (
     <div className="app">
-      {/* POPUP */}
-      {Object.values(agregados).some(v => v) && (
-      <div style={{
-        position: 'fixed',
-        bottom: '24px',
-        right: '24px',
-        background: '#4CAF50',
-        color: 'white',
-        padding: '12px 20px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-        fontWeight: 'bold',
-        zIndex: 1000
-      }}>
-        ✓ Se agregó al carrito
-      </div>
-      )}
-      <header className="app-header">
-        <button className="cart-button" onClick={() => navigate('/carrito')}>
-          🛒 Carrito
-        </button>
-        <h1 className="app-logo">Baratito</h1>
-        <p className="app-subtitle">Compará precios entre supermercados</p>
-      </header>
-
+   {/* POPUP */}
+   {mensajeCarrito && (
+     <div className={`popup-carrito ${mensajeCarrito.tipo}`}>
+       {mensajeCarrito.texto}
+     </div>
+   )}
+     <header className="app-header">
+       <div className="branding">
+         <h1 className="app-logo">Baratito</h1>
+         <p className="app-subtitle">Compará precios entre supermercados</p>
+       </div>
+       <button className="cart-button" onClick={() => navigate('/carrito')}>
+         🛒 Carrito
+         {totalProductos > 0 && (
+             <span className="cart-badge">{totalProductos}</span>
+           )}
+       </button>
+     </header>
       <main className="app-main">
         <div className="search-section">
           <div className={`search-bar ${error ? 'search-bar--error' : ''}`}>
@@ -133,7 +146,7 @@ function Home() {
                   </p>
                   <ul className="results-list">
                     {disponibles.map((producto, i) => (
-                      <li key={i} className="product-card">
+                      <li key={producto.id} className="product-card">
                         <div className="product-img">
                           {producto.imagen ? (
                             <img src={producto.imagen} alt={producto.nombre} />
@@ -167,14 +180,27 @@ function Home() {
                               src={`/logos/${producto.source.toLowerCase()}.png`}
                               alt={producto.source}
                             />
-                            <button
-                              className={`product-add-btn ${agregados[producto.id] ? 'product-add-btn--added' : ''}`}
-                              onClick={() => handleAgregar(producto.id)}
-                            >
-                              {agregados[producto.id] ? '✓' : '+'}
-                            </button>
+
+                         {(() => {
+                           const item = cart.productos.find(p => p.id === producto.id)
+                           return item ? (
+                             <div className="quantity-controls">
+                               <button onClick={() => handleDecrement(producto.id, producto.nombre)}>-</button>
+                               <span>{item.cantidad}</span>
+                               <button onClick={() => handleIncrement(producto.id, producto.nombre)}>+</button>
+                             </div>
+                           ) : (
+                             <button
+                               className="product-add-btn"
+                               onClick={() => handleIncrement(producto.id, producto.nombre)}
+                             >
+                               +
+                             </button>
+                           )
+                         })()}
                           </div>
                         </div>
+
                       </li>
                     ))}
                   </ul>

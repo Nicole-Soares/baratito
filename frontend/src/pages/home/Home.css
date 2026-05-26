@@ -438,12 +438,72 @@ body {
 }
 .product-actions-container {
   display: flex;
+   flex-direction: column;
+   align-items: flex-end;
+   justify-content: center;
+   gap: 8px;
+   min-width: 180px;
+   flex-shrink: 0;
+}
+
+
+.product-actions-group {
+  display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+
+.product-buttons-row {
+  display: flex;
+  align-items: center;
   gap: 8px;
-  min-width: 80px;
-  flex-shrink: 0;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+
+.product-go-link {
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none; /* Saca el subrayado  por defecto */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.product-go-link:hover {
+  background: var(--accent-hover);
+  transform: scale(1.05);
+}
+
+.product-go-link:active {
+  transform: scale(0.95);
+}
+
+
+.quantity-badge {
+  color: white;
+  min-width: 16px;
+  text-align: center;
+  font-weight: 600;
+}
+
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 42px;
 }
 
 .product-add-btn:hover {

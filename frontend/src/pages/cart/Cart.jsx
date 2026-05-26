@@ -1,43 +1,22 @@
-import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useCart } from '../../context/CartContext'
 import './Cart.css'
 
 function Cart() {
-
-  const [cart, setCart] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
   const navigate = useNavigate()
+  const { cart, quitarProducto, popup } = useCart()
 
-  const fetchCart = () => {
-    fetch('http://localhost:8080/api/carrito')
-      .then(res => res.json())
-      .then(data => setCart(data))
-      .catch(() => setError('No se pudo cargar el carrito'))
-      .finally(() => setLoading(false))
-  }
-
-  useEffect(() => {
-    fetchCart()
-  }, [])
-
-  const handleQuitar = async (id) => {
-    try {
-      const res = await fetch(`http://localhost:8080/api/carrito/${id}`, {
-        method: 'DELETE'
-      })
-      const data = await res.json()
-      setCart(data)
-    } catch {
-      setError('No se pudo quitar el producto')
-    }
-  }
-
-  if (loading) return <p>Cargando carrito...</p>
-  if (error) return <p>{error}</p>
+  // los datos del carrito estan en el context
+  if (!cart || !cart.productos) return <p>Cargando carrito...</p>
 
   return (
     <div className="cart-container">
+      {/* POPUP GLOBAL */}
+      {popup && (
+        <div className={`popup-carrito ${popup.tipo}`}>
+          {popup.texto}
+        </div>
+      )}
 
       <h1 className="cart-title">Mi carrito</h1>
 
@@ -56,9 +35,11 @@ function Cart() {
           cart.productos.map(producto => (
             <div key={producto.id} className="cart-card">
               <div className="cart-left">
-                <img src={producto.imagen}
-                     alt={producto.nombre}
-                     className="cart-image" />
+                <img
+                  src={producto.imagen}
+                  alt={producto.nombre}
+                  className="cart-image"
+                />
                 <div className="cart-info">
                   <h3>{producto.nombre}</h3>
                   <p className="cart-source">{producto.source}</p>
@@ -71,7 +52,7 @@ function Cart() {
               </div>
               <button
                 className="cart-remove-btn"
-                onClick={() => handleQuitar(producto.id)}
+                onClick={() => quitarProducto(producto.productoId, producto.nombre)}
                 title="Quitar del carrito"
               >
                 🗑 Quitar

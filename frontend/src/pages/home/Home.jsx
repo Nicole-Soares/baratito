@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { useSearch } from '../../context/SearchContext'
 import { useCart } from '../../context/CartContext'
 import './Home.css'
+import CardProducto from '../../components/cardproduct/CardProduct'
 
 function Home() {
   const [query, setQuery] = useState('')
   const [agregados, setAgregados] = useState({})
-  const { cart, agregarProducto, quitarProducto } = useCart()
+  const { cart, popup, agregarProducto, quitarProducto } = useCart()
   const { resultados, setResultados, busquedaActual, setBusquedaActual, error, setError, loading, setLoading } = useSearch()
   const [mensajeCarrito, setMensajeCarrito] = useState('')
   const inputRef = useRef(null)
@@ -17,15 +18,12 @@ function Home() {
   const totalProductos = cart.productos.reduce((acc, p) => acc + p.cantidad, 0)
 
     const handleIncrement = async (productoId, nombreProducto) => {
-      const msg = await agregarProducto(productoId, nombreProducto)
-      setMensajeCarrito({ texto: msg, tipo: 'agregado' })
-      setTimeout(() => setMensajeCarrito(''), 1000)
+        agregarProducto(productoId, nombreProducto)
+
     }
 
   const handleDecrement = async (productoId, nombreProducto) => {
-    const msg = await quitarProducto(productoId, nombreProducto)
-    setMensajeCarrito({ texto: msg, tipo: 'quitado' })
-    setTimeout(() => setMensajeCarrito(''), 1000)
+        quitarProducto(productoId, nombreProducto)
   }
 
 
@@ -87,12 +85,11 @@ const handleAgregar = async (productoId, nombreProducto) => {
 
   return (
     <div className="app">
-   {/* POPUP */}
-   {mensajeCarrito && (
-     <div className={`popup-carrito ${mensajeCarrito.tipo}`}>
-       {mensajeCarrito.texto}
-     </div>
-   )}
+   {popup && (
+           <div className={`popup-carrito ${popup.tipo}`}>
+             {popup.texto}
+           </div>
+         )}
      <header className="app-header">
        <div className="branding">
          <h1 className="app-logo">Baratito</h1>
@@ -145,66 +142,13 @@ const handleAgregar = async (productoId, nombreProducto) => {
                     }
                   </p>
                   <ul className="results-list">
-                    {disponibles.map((producto, i) => (
-                      <li key={producto.id} className="product-card">
-                        <div className="product-img">
-                          {producto.imagen ? (
-                            <img src={producto.imagen} alt={producto.nombre} />
-                          ) : (
-                            <span className="product-img-placeholder">🛒</span>
-                          )}
-                        </div>
-
-                        <div className="product-info">
-                          <a className="product-name">{producto.nombre}</a>
-                          <div className="product-price-main">
-                            ${producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                            {producto.precioLista > producto.precio && (
-                              <span className="product-price-lista">
-                                ${producto.precioLista.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                              </span>
-                            )}
-                          </div>
-                          <div className="product-price-unit">
-                            (${producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} x UN)
-                          </div>
-                          <div className="product-updated">
-                            Actualizado el: {producto.actualizado}
-                          </div>
-                        </div>
-
-                        <div className="product-actions-container">
-                          <div className="product-actions-group">
-                            <img
-                              className="supermarket-logo"
-                              src={`/logos/${producto.source.toLowerCase()}.png`}
-                              alt={producto.source}
-                            />
-
-                       {(() => {
-                         // Comparamos por nombre e imagen. Como son textos idénticos, JavaScript no falla jamás.
-                         const item = cart.productos.find(p => p.nombre === producto.nombre && p.imagen === producto.imagen)
-
-                         return item ? (
-                           <div className="quantity-controls" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                             <button onClick={() => handleDecrement(producto.id, producto.nombre)}>-</button>
-                             <span style={{ color: 'white' }}>{item.cantidad}</span>
-                             <button onClick={() => handleIncrement(producto.id, producto.nombre)}>+</button>
-                           </div>
-                         ) : (
-                           <button
-                             className="product-add-btn"
-                             onClick={() => handleIncrement(producto.id, producto.nombre)}
-                           >
-                             +
-                           </button>
-                         )
-                       })()}
-                          </div>
-                        </div>
-
-                      </li>
-                    ))}
+                 {disponibles.map((producto) => (
+                     <CardProducto
+                       key={producto.id}
+                       producto={producto}
+                       cart={cart}
+                     />
+                   ))}
                   </ul>
                 </>
               )

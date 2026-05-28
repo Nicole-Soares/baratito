@@ -118,6 +118,52 @@ class ProductoServiceTest {
     }
 
     @Test
+    @DisplayName("Debe tolerar errores de escritura con z/s/c en la query")
+    void testBusquedaDifusaConVariacionesZSC() {
+
+        ProductoSchema producto = new ProductoSchema(
+                "coto",
+                "Leche Sancor 1L",
+                "https://coto.example/sancor",
+                "img",
+                true,
+                1200.0,
+                1300.0,
+                LocalDate.now()
+        );
+
+        productoRepository.saveAllYObtenerOrdenados(List.of(producto), "leche sancor");
+
+        List<ProductoSchema> resultados = productoRepository.encontrarProductos("leche zancor");
+
+        assertFalse(resultados.isEmpty());
+        assertTrue(resultados.stream().anyMatch(p -> p.getNombre().contains("Sancor")));
+    }
+
+    @Test
+    @DisplayName("Debe tolerar errores de escritura con b/v en la query")
+    void testBusquedaDifusaConVariacionesBV() {
+
+        ProductoSchema producto = new ProductoSchema(
+                "dia",
+                "Leche de vaca 1L",
+                "https://dia.example/vaca",
+                "img",
+                true,
+                1100.0,
+                1200.0,
+                LocalDate.now()
+        );
+
+        productoRepository.saveAllYObtenerOrdenados(List.of(producto), "leche de vaca");
+
+        List<ProductoSchema> resultados = productoRepository.encontrarProductos("leche de baca");
+
+        assertFalse(resultados.isEmpty());
+        assertTrue(resultados.stream().anyMatch(p -> p.getNombre().contains("vaca")));
+    }
+
+    @Test
     @DisplayName("Debe actualiza la fecha un producto existente (Upsert) por estar desactualizado")
     void testUpsertReal() {
 

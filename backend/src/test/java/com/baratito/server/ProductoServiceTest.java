@@ -93,6 +93,31 @@ class ProductoServiceTest {
     }
 
     @Test
+    @DisplayName("Debe encontrar productos con una búsqueda difusa por error ortográfico incluso si no fueron actualizados hoy")
+    void testBusquedaDifusaPorErrorOrtograficoConDatosHistoricos() {
+
+        String queryConError = "leche zancor";
+
+        ProductoSchema producto = new ProductoSchema(
+                "coto",
+                "Leche Sancor 1L",
+                "https://coto.example/sancor",
+                "img",
+                true,
+                1200.0,
+                1300.0,
+                LocalDate.now().minusDays(5)
+        );
+
+        productoRepository.saveAllYObtenerOrdenados(List.of(producto), "leche sancor");
+
+        List<ProductoSchema> resultados = productoRepository.encontrarProductos(queryConError);
+
+        assertFalse(resultados.isEmpty());
+        assertTrue(resultados.stream().anyMatch(p -> p.getNombre().contains("Sancor")));
+    }
+
+    @Test
     @DisplayName("Debe actualiza la fecha un producto existente (Upsert) por estar desactualizado")
     void testUpsertReal() {
 

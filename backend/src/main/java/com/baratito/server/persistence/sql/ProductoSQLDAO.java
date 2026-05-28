@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +15,7 @@ public interface ProductoSQLDAO extends JpaRepository<ProductoSchema, Long> {
 
     List<ProductoSchema> findByNombreContainingIgnoreCaseOrderByPrecioAsc(String nombre);
 
+    List<ProductoSchema> findByNombreContainingIgnoreCaseAndActualizadoAndDisponibilidadTrueOrderByPrecioAsc(String nombre, LocalDate actualizado);
 
     Optional<ProductoSchema> findByLink(String link);
 

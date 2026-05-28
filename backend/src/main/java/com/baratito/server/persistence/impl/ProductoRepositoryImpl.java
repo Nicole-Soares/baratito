@@ -26,22 +26,11 @@ public ProductoRepositoryImpl(ProductoSQLDAO productoSQLDAO) {
     public List<ProductoSchema> encontrarProductos(String query) {
         // busca por nombre del producto, tanto individualmente o si es contenido, ignora si fue escrito en mayus o minus,
         //ordena de manera ascendente
-        return productoSQLDAO.findByNombreContainingIgnoreCaseOrderByPrecioAsc(query);
+
+        LocalDate hoy = LocalDate.now();
+        return productoSQLDAO.findByNombreContainingIgnoreCaseAndActualizadoAndDisponibilidadTrueOrderByPrecioAsc(query, hoy);
 
     }
-    /*
-    @Override
-    public List<ProductoSchema> saveAllYObtenerOrdenados(List<ProductoSchema> resultados, String query) {
-
-        // se guarda
-        productoSQLDAO.saveAll(resultados);
-
-        //se usa la query para traer los productos ordenados de menor a mayor
-        return  productoSQLDAO.findByNombreContainingIgnoreCaseOrderByPrecioAsc(query);
-
-    }
-*/
-
 
     @Override
     @Transactional
@@ -87,7 +76,7 @@ public ProductoRepositoryImpl(ProductoSQLDAO productoSQLDAO) {
         }
 
         // se devuelve todo ordenado
-        return productoSQLDAO.findByNombreContainingIgnoreCaseOrderByPrecioAsc(query);
+        return productoSQLDAO.findByNombreContainingIgnoreCaseAndActualizadoAndDisponibilidadTrueOrderByPrecioAsc(query, (LocalDate.now()));
     }
 
     @Override

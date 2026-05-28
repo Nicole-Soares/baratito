@@ -51,7 +51,7 @@ class CarritoServiceTest {
     void setUp() {
         // 1. Limpiamos las tablas para asegurar un entorno controlado
         carritoRepository.deleteAll();
-        productoSQLDAO.deleteAll(); // (Asegúrate de que productoSQLDAO tenga este método o usa su repositorio equivalente)
+        productoSQLDAO.deleteAll();
 
         // 2. Instanciamos los productos usando tus datos reales
         productoSchema = new ProductoSchema("coto", "Yerba Playadito 1kg", "http://coto.com/playadito", "img_url", true, 4500.0, 5000.0, LocalDate.now());

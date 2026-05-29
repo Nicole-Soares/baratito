@@ -8,6 +8,7 @@ import CardProducto from '../../components/cardproduct/CardProduct'
 function Home() {
   const [query, setQuery] = useState('')
   const [agregados, setAgregados] = useState({})
+  const [filtrosActivos, setFiltrosActivos] = useState([])
   const { cart, popup, agregarProducto, quitarProducto } = useCart()
   const { resultados, setResultados, busquedaActual, setBusquedaActual, error, setError, loading, setLoading } = useSearch()
   const [mensajeCarrito, setMensajeCarrito] = useState('')
@@ -37,6 +38,7 @@ function Home() {
     setResultados(null)
     setLoading(true)
     setBusquedaActual(query.trim())
+    setFiltrosActivos([])
 
     try {
       const res = await fetch(
@@ -133,22 +135,57 @@ const handleAgregar = async (productoId, nombreProducto) => {
           <div className="results-section">
             {(() => {
               const disponibles = resultados.resultados.filter(p => p.disponibilidad)
+
+              const supermercados = [...new Set(disponibles.map(p => p.source))]
+
+              const toggleFiltro = (source) => {
+                setFiltrosActivos(prev =>
+                  prev.includes(source)
+                    ? prev.filter(s => s !== source)
+                    : [...prev, source]
+                )
+              }
+
+              const productosFiltrados = filtrosActivos.length === 0
+                ? disponibles
+                : disponibles.filter(p => filtrosActivos.includes(p.source))
+
               return (
                 <>
                   <p className="results-meta">
                     {disponibles.length > 0
-                      ? `${disponibles.length} resultado${disponibles.length !== 1 ? 's' : ''} para "${resultados.busqueda}"`
+                      ? `${productosFiltrados.length} resultado${productosFiltrados.length !== 1 ? 's' : ''} para "${resultados.busqueda}"`
                       : `No se encontraron productos para "${resultados.busqueda}"`
                     }
                   </p>
+
+                  {supermercados.length > 1 && (
+                    <div className="filtros-supermercados">
+                      {supermercados.map(source => (
+                        <button
+                          key={source}
+                          className={`filtro-btn ${filtrosActivos.includes(source) ? 'filtro-btn--activo' : ''}`}
+                          onClick={() => toggleFiltro(source)}
+                        >
+                          <img
+                            src={`/logos/${source.toLowerCase()}.png`}
+                            alt={source}
+                            className="filtro-logo"
+                          />
+                          {source}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   <ul className="results-list">
-                 {disponibles.map((producto) => (
-                     <CardProducto
-                       key={producto.id}
-                       producto={producto}
-                       cart={cart}
-                     />
-                   ))}
+                    {productosFiltrados.map((producto) => (
+                      <CardProducto
+                        key={producto.id}
+                        producto={producto}
+                        cart={cart}
+                      />
+                    ))}
                   </ul>
                 </>
               )

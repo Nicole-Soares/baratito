@@ -10,4 +10,5 @@ public interface ProductoRepository {
     List<ProductoSchema> saveAllYObtenerOrdenados(List<ProductoSchema> resultados, String query);
     List<ProductoSchema> findAll();
     void deleteAll();
+    List<String> obtenerSugerencias(String query);
 }

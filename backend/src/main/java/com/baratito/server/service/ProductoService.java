@@ -76,6 +76,17 @@ public class ProductoService {
 
     }
 
+    public List<String> obtenerSugerencias (String query) {
+
+        if (query == null || query.trim().length() < 2) { //evita hacer consultas si el texto es menor a 2 caracteres
+            return List.of();
+        }
+
+        String queryNorm = query.trim().toLowerCase(); // normalizamos la query para que no haya problemas de mayus/minus o espacios al buscar en la BD
+
+        return productoRepository.obtenerSugerencias(queryNorm);
+    }
+
     // ──────────────────────── Consultas de metadatos ──────────────────────────
 
     /**

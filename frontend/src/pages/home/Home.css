@@ -545,6 +545,10 @@ body {
   background: rgba(124, 92, 255, 0.15);
 }
 
+.suggestion-item.selected {
+  background: rgba(124, 92, 255, 0.25);
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 520px) {
   .product-card {

@@ -100,4 +100,13 @@ public class ProductoController {
     public ResponseEntity<List<String>> getSupermercados() {
         return ResponseEntity.ok(productoService.getSupermercadosDisponibles());
     }
+
+    @GetMapping("/sugerencias")
+    public ResponseEntity<List<String>> obtenerSugerencias(
+            @RequestParam String query
+    ) {
+        return ResponseEntity.ok(
+                productoService.obtenerSugerencias(query)
+        );
+    }
 }

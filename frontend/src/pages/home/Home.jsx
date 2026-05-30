@@ -8,6 +8,7 @@ import CardProducto from '../../components/cardproduct/CardProduct'
 function Home() {
   const [query, setQuery] = useState('')
   const [agregados, setAgregados] = useState({})
+  const [sugerencias, setSugerencias] = useState([])
   const { cart, popup, agregarProducto, quitarProducto } = useCart()
   const { resultados, setResultados, busquedaActual, setBusquedaActual, error, setError, loading, setLoading } = useSearch()
   const [mensajeCarrito, setMensajeCarrito] = useState('')
@@ -37,6 +38,7 @@ function Home() {
     setResultados(null)
     setLoading(true)
     setBusquedaActual(query.trim())
+    setSugerencias([])
 
     try {
       const res = await fetch(
@@ -57,13 +59,37 @@ function Home() {
     }
   }
 
+  const obtenerSugerencias = async (texto) => {
+    try {
+      const res = await fetch(
+        `http://localhost:8080/api/productos/sugerencias?query=${encodeURIComponent(texto)}`
+      )
+
+      const data = await res.json()
+
+      setSugerencias(data)
+    } catch (error) {
+      console.error(error)
+      setSugerencias([])
+    }
+  }
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') handleSearch()
   }
 
   const handleInputChange = (e) => {
-    setQuery(e.target.value)
+    const texto = e.target.value
+
+    setQuery(texto)
+
     if (error) setError('')
+
+    if (texto.trim().length >= 2) {
+      obtenerSugerencias(texto)
+    } else {
+      setSugerencias([])
+    }
   }
 
 const handleAgregar = async (productoId, nombreProducto) => {
@@ -119,6 +145,23 @@ const handleAgregar = async (productoId, nombreProducto) => {
               {loading ? 'Buscando...' : 'Buscar'}
             </button>
           </div>
+          {sugerencias.length > 0 && (
+            <ul className="suggestions-list">
+              {sugerencias.map((sugerencia) => (
+                <li
+                  key={sugerencia}
+                  className="suggestion-item"
+                  onClick={() => {
+                    setQuery(sugerencia)
+                    setSugerencias([])
+                  }}
+                >
+                  {sugerencia}
+                </li>
+              ))}
+            </ul>
+          )}
+
           {error && <p className="search-error">⚠ {error}</p>}
         </div>
 

@@ -252,6 +252,50 @@ body {
   gap: 12px;
 }
 
+.filtros-supermercados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  justify-content: center;
+}
+
+.filtro-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: capitalize;
+  transition: all var(--transition);
+}
+
+.filtro-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.filtro-btn--activo {
+  border-color: var(--accent);
+  background: rgba(124, 92, 252, 0.15);
+  color: var(--text);
+}
+
+.filtro-logo {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  background: white;
+  border-radius: 3px;
+  padding: 1px;
+}
+
 /* ── PRODUCT CARD ── */
 .product-card {
   background: var(--bg-card);

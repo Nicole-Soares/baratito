@@ -9,9 +9,11 @@ function Home() {
   const [query, setQuery] = useState('')
   const [agregados, setAgregados] = useState({})
   const [filtrosActivos, setFiltrosActivos] = useState([])
+  const [sugerencias, setSugerencias] = useState([])
   const { cart, popup, agregarProducto, quitarProducto } = useCart()
   const { resultados, setResultados, busquedaActual, setBusquedaActual, error, setError, loading, setLoading } = useSearch()
   const [mensajeCarrito, setMensajeCarrito] = useState('')
+  const [indiceSeleccionado, setIndiceSeleccionado] = useState(-1)
   const inputRef = useRef(null)
   const navigate = useNavigate()
 
@@ -39,6 +41,7 @@ function Home() {
     setLoading(true)
     setBusquedaActual(query.trim())
     setFiltrosActivos([])
+    setSugerencias([])
 
     try {
       const res = await fetch(
@@ -59,13 +62,92 @@ function Home() {
     }
   }
 
+  const obtenerSugerencias = async (texto) => {
+    try {
+      const res = await fetch(
+        `http://localhost:8080/api/productos/sugerencias?query=${encodeURIComponent(texto)}`
+      )
+
+      const data = await res.json()
+
+      setSugerencias(data)
+    } catch (error) {
+      console.error(error)
+      setSugerencias([])
+    }
+  }
+
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleSearch()
+
+    // Desplazarse con flecha para abajo
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      seleccionarSiguiente()
+      return
+    }
+
+    // Desplazarse con flecha para arriba
+    if (e.key === 'ArrowUp' && sugerencias.length > 0) {
+      e.preventDefault()
+
+      const nuevoIndice =
+        indiceSeleccionado > 0
+          ? indiceSeleccionado - 1
+          : 0
+
+      setIndiceSeleccionado(nuevoIndice)
+      setQuery(sugerencias[nuevoIndice])
+
+      return
+    }
+
+    // Rellenar con tab
+    if (e.key === 'Tab') {
+      e.preventDefault()
+      seleccionarSiguiente()
+      return
+    }
+
+    // Buscar con enter
+    if (e.key === 'Enter') {
+
+      if (indiceSeleccionado >= 0) {
+        setQuery(sugerencias[indiceSeleccionado])
+        setSugerencias([])
+        setIndiceSeleccionado(-1)
+        return
+      }
+
+      handleSearch()
+    }
+  }
+
+  const seleccionarSiguiente = () => {
+    if (sugerencias.length === 0) return
+
+    const nuevoIndice =
+      indiceSeleccionado < sugerencias.length - 1
+        ? indiceSeleccionado + 1
+        : indiceSeleccionado
+
+    setIndiceSeleccionado(nuevoIndice)
+    setQuery(sugerencias[nuevoIndice])
   }
 
   const handleInputChange = (e) => {
-    setQuery(e.target.value)
+    const texto = e.target.value
+
+    setQuery(texto)
+
     if (error) setError('')
+
+    if (texto.trim().length >= 2) {
+      obtenerSugerencias(texto)
+      setIndiceSeleccionado(-1)
+    } else {
+      setSugerencias([])
+      setIndiceSeleccionado(-1)
+    }
   }
 
 const handleAgregar = async (productoId, nombreProducto) => {
@@ -121,6 +203,26 @@ const handleAgregar = async (productoId, nombreProducto) => {
               {loading ? 'Buscando...' : 'Buscar'}
             </button>
           </div>
+          {sugerencias.length > 0 && (
+            <ul className="suggestions-list">
+              {sugerencias.map((sugerencia, index) => (
+                <li
+                  key={sugerencia}
+                  className={`suggestion-item ${
+                    indiceSeleccionado === index ? 'selected' : ''
+                  }`}
+                  onClick={() => {
+                    setQuery(sugerencia)
+                    setSugerencias([])
+                    setIndiceSeleccionado(-1)
+                  }}
+                >
+                  {sugerencia}
+                </li>
+              ))}
+            </ul>
+          )}
+
           {error && <p className="search-error">⚠ {error}</p>}
         </div>
 

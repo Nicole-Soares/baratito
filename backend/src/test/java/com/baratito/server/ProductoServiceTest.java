@@ -123,7 +123,68 @@ class ProductoServiceTest {
         assertEquals(LocalDate.now(), productosEnBD.get(0).getActualizado());
     }
 
+    @Test
+    @DisplayName("Devuelve sugerencias para una búsqueda válida")
+    void testObtenerSugerencias() {
 
+        String query = "lec"; //para que sea búsqueda válida tiene que tener al menos 2 caracteres
+
+        ProductoSchema lecheEntera = new ProductoSchema(
+                "coto",
+                "Leche Entera La Serenisima",
+                "link1",
+                "img",
+                true,
+                1000,
+                1000,
+                LocalDate.now()
+        );
+
+        ProductoSchema lecheDescremada = new ProductoSchema(
+                "dia",
+                "Leche Descremada",
+                "link2",
+                "img",
+                true,
+                900,
+                900,
+                LocalDate.now()
+        );
+
+        ProductoSchema yerba = new ProductoSchema(
+                "coto",
+                "Yerba Playadito",
+                "link3",
+                "img",
+                true,
+                2000,
+                2000,
+                LocalDate.now()
+        );
+
+        productoRepository.saveAllYObtenerOrdenados(
+                List.of(lecheEntera, lecheDescremada, yerba),
+                query
+        );
+
+        List<String> sugerencias =
+                productoService.obtenerSugerencias(query);
+
+        assertEquals(2, sugerencias.size());
+
+        assertTrue(sugerencias.contains("Leche Entera La Serenisima"));
+        assertTrue(sugerencias.contains("Leche Descremada"));
+    }
+
+    @Test
+    @DisplayName("Devuelve lista vacía si la búsqueda tiene menos de 2 caracteres")
+    void testObtenerSugerenciasConMenosDeDosCaracteres() {
+
+        List<String> sugerencias =
+                productoService.obtenerSugerencias("l");
+
+        assertTrue(sugerencias.isEmpty());
+    }
 
 }
 

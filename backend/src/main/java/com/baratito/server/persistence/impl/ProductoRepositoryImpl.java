@@ -5,6 +5,8 @@ import com.baratito.server.persistence.interfaces.ProductoRepository;
 import com.baratito.server.persistence.sql.ProductoSQLDAO;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -87,5 +89,20 @@ public ProductoRepositoryImpl(ProductoSQLDAO productoSQLDAO) {
     @Override
     public void deleteAll() {
         productoSQLDAO.deleteAll();
+    }
+
+    @Override
+    /*
+    *
+    * */
+    public List<String> obtenerSugerencias(String query) {
+
+        Pageable pageable = PageRequest.of(0, 5); //lo limito a 5 sugerencias
+
+        return productoSQLDAO.buscarSugerencias(
+                query,
+                LocalDate.now(), //le pongo la fecha de hoy
+                pageable
+        );
     }
 }

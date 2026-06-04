@@ -19,31 +19,31 @@ public class ProductoSchema {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    private Long id;
 
     @Column(name = "source")
-    String source;       // "carrefour", "coto", etc.
+    private String source;       // "carrefour", "coto", etc.
 
     @Column(name = "nombre", nullable = false)
-    String nombre;
+    private String nombre;
 
     @Column(name = "link", length = 1024) // para que no tire error, la bd por default tiene 255 char, con eso soporta mas
-    String link;
+    private String link;
 
     @Column(name = "imagen")
-    String imagen;
+    private String imagen;
 
     @Column(name = "disponibilidad")
-    boolean disponibilidad;
+    private boolean disponibilidad;
 
     @Column(name = "precio", columnDefinition = "DOUBLE PRECISION CHECK (precio >= 0)")
-    double precio;
+    private double precio;
 
     @Column(name = "precio_lista", columnDefinition = "DOUBLE PRECISION CHECK (precio_lista >= 0)")
-    double precioLista;   // precio original sin descuento
+    private double precioLista;   // precio original sin descuento
 
     @Column(name = "actualizado")
-    LocalDate actualizado;
+    private LocalDate actualizado;
 
     public ProductoSchema(String source, String nombre, String link, String imagen, boolean disponibilidad, double precio, double precioLista, LocalDate actualizado) {
         this.source = source;

@@ -174,18 +174,23 @@ const handleAgregar = async (productoId, nombreProducto) => {
              {popup.texto}
            </div>
          )}
-     <header className="app-header">
-       <div className="branding">
-         <h1 className="app-logo">Baratito</h1>
-         <p className="app-subtitle">Compará precios entre supermercados</p>
-       </div>
-       <button className="cart-button" onClick={() => navigate('/carrito')}>
-         🛒 Carrito
-         {totalProductos > 0 && (
-             <span className="cart-badge">{totalProductos}</span>
-           )}
-       </button>
-     </header>
+    <header className="app-header">
+      <div className="branding">
+        <h1 className="app-logo">Baratito</h1>
+        <p className="app-subtitle">Compará precios entre supermercados</p>
+      </div>
+      <div className="header-actions">
+        <button className="auth-button" onClick={() => navigate('/login')}>
+          👤 Ingresar
+        </button>
+        <button className="cart-button" onClick={() => navigate('/carrito')}>
+          🛒 Carrito
+          {totalProductos > 0 && (
+            <span className="cart-badge">{totalProductos}</span>
+          )}
+        </button>
+      </div>
+    </header>
       <main className="app-main">
         <div className="search-section">
           <div className={`search-bar ${error ? 'search-bar--error' : ''}`}>

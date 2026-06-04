@@ -34,12 +34,17 @@ body {
 }
 
 .popup-carrito {
-  padding: 12px 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  font-weight: bold;
-  animation: fadeInOut 2s ease forwards;
-  color: white;
+   position: fixed;
+   bottom: 24px;
+   right: 24px;
+   background: var(--accent);
+   color: #fff;
+   padding: 12px 20px;
+   border-radius: 8px;
+   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+   font-weight: bold;
+   z-index: 1000;
+   animation: fadeInOut 2s ease forwards;
 }
 
 .popup-carrito.agregado {
@@ -235,12 +240,16 @@ body {
 }
 
 .loading-state {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--text-muted);
-  padding: 20px 0;
-  font-size: 0.95rem;
+   display: flex;
+   flex-direction: row;
+   align-items: center;
+   justify-content: center;
+   gap: 12px;
+   color: var(--text-muted);
+   padding: 20px 0;
+   font-size: 0.95rem;
+   text-align: center;
+   min-height: 60vh;
 }
 
 .loading-spinner {

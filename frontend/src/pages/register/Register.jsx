@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Register.css'
+import { useAuth } from '../../context/AuthContext'
 
 function Register() {
   const [nombre, setNombre] = useState('')
@@ -10,6 +11,7 @@ function Register() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -46,6 +48,17 @@ function Register() {
         }),
       })
 
+      // 🔍 1. Imprimimos TODO lo que el navegador te permite ver de los headers
+      console.log("--- TEST HEADERS ---")
+      for (let pair of res.headers.entries()) {
+        console.log(`${pair[0]}: ${pair[1]}`);
+      }
+
+      // 🔍 2. Intentamos leer el header Authorization directamente
+      const authHeader = res.headers.get('Authorization')
+      console.log("Valor de authHeader directo:", authHeader)
+      console.log("--------------------")
+
       const data = await res.json()
 
       if (!res.ok) {
@@ -53,12 +66,11 @@ function Register() {
         return
       }
 
-      // Guardamos token si el backend lo devuelve de una
-      if (data.token) {
-        localStorage.setItem('token', data.token)
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7)
+        login(token)
       }
 
-      // Redirigimos al Home directamente ya logueado
       navigate('/')
     } catch (err) {
       setError('No se pudo conectar con el servidor')

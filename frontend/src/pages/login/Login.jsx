@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 import './Login.css'
 
 function Login() {
@@ -8,6 +9,7 @@ function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -38,7 +40,7 @@ function Login() {
 
       // Si usás token para proteger rutas, guardalo acá:
       if (data.token) {
-        localStorage.setItem('token', data.token)
+        login(data.token)
       }
 
       // Redirigir al Home tras el login exitoso

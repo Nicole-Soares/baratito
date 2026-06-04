@@ -10,7 +10,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/productos")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", exposedHeaders = "Authorization")
 public class ProductoController {
 
     private final ProductoService productoService;

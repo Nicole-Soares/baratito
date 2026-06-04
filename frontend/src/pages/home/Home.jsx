@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSearch } from '../../context/SearchContext'
 import { useCart } from '../../context/CartContext'
+import {useAuth } from '../../context/AuthContext'
 import './Home.css'
 import CardProducto from '../../components/cardproduct/CardProduct'
 
@@ -14,6 +15,8 @@ function Home() {
   const { resultados, setResultados, busquedaActual, setBusquedaActual, error, setError, loading, setLoading } = useSearch()
   const [mensajeCarrito, setMensajeCarrito] = useState('')
   const [indiceSeleccionado, setIndiceSeleccionado] = useState(-1)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const { isLoggedIn, logout } = useAuth()
   const inputRef = useRef(null)
   const navigate = useNavigate()
 
@@ -179,17 +182,38 @@ const handleAgregar = async (productoId, nombreProducto) => {
         <h1 className="app-logo">Baratito</h1>
         <p className="app-subtitle">Compará precios entre supermercados</p>
       </div>
-      <div className="header-actions">
-        <button className="auth-button" onClick={() => navigate('/login')}>
-          👤 Ingresar
-        </button>
-        <button className="cart-button" onClick={() => navigate('/carrito')}>
-          🛒 Carrito
-          {totalProductos > 0 && (
-            <span className="cart-badge">{totalProductos}</span>
-          )}
-        </button>
-      </div>
+     <div className="header-actions">
+       {isLoggedIn ? (
+         <div className="user-menu">
+           <button
+             className={`hamburger-btn ${menuOpen ? 'open' : ''}`}
+             onClick={() => setMenuOpen(!menuOpen)}
+             aria-label="Menú de usuario"
+           >
+             <span className="hamburger-line"></span>
+             <span className="hamburger-line"></span>
+             <span className="hamburger-line"></span>
+           </button>
+
+           {menuOpen && (
+             <div className="dropdown-menu">
+               <button onClick={() => { navigate("/perfil"); setMenuOpen(false); }}>👤 Perfil</button>
+               <button onClick={() => { navigate("/configuracion"); setMenuOpen(false); }}>🔔 Notificaciones</button>
+               <button onClick={() => { logout(); setMenuOpen(false); }}>🚪 Cerrar sesión</button>
+             </div>
+           )}
+         </div>
+       ) : (
+         <button className="auth-button" onClick={() => navigate("/login")}>
+           👤 Ingresar
+         </button>
+       )}
+
+       <button className="cart-button" onClick={() => navigate("/carrito")}>
+         🛒 Carrito
+         {totalProductos > 0 && <span className="cart-badge">{totalProductos}</span>}
+       </button>
+     </div>
     </header>
       <main className="app-main">
         <div className="search-section">

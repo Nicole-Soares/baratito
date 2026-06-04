@@ -5,10 +5,13 @@ import Login from './pages/login/Login'
 import Register from './pages/register/Register'
 import { CartProvider } from './context/CartContext'
 import { SearchProvider } from './context/SearchContext'
+import { AuthProvider } from './context/AuthContext'
+
 
 function App() {
   return (
 
+<AuthProvider>
    <SearchProvider>
     <CartProvider>
       <BrowserRouter>
@@ -21,6 +24,7 @@ function App() {
       </BrowserRouter>
     </CartProvider>
     </SearchProvider>
+    </AuthProvider>
   )
 }
 

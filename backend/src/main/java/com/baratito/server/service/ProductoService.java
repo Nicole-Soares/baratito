@@ -4,6 +4,7 @@ import com.baratito.server.model.ProductoSchema;
 import com.baratito.server.persistence.interfaces.CacheRepository;
 import com.baratito.server.persistence.interfaces.ProductoRepository;
 import com.baratito.server.scraper.ScraperMaster;
+import com.baratito.server.utils.CorrectorOrtografico;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -18,13 +19,16 @@ public class ProductoService {
     private final ScraperMaster scraperMaster;
     private final ProductoRepository productoRepository;
     private final CacheRepository cacheRepository;
+    private final CorrectorOrtografico corrector;
 
     public ProductoService(ScraperMaster scraperMaster,
                            ProductoRepository productoRepository,
-                           CacheRepository cacheRepository) {
+                           CacheRepository cacheRepository,
+                           CorrectorOrtografico corrector) {
         this.scraperMaster = scraperMaster;
         this.productoRepository = productoRepository;
         this.cacheRepository = cacheRepository;
+        this.corrector = corrector;
     }
 
     // ──────────────────────────── Búsqueda ────────────────────────────────────
@@ -35,21 +39,23 @@ public class ProductoService {
      * @return lista de productos de todos los supermercados, ordenada por precio
      */
     public List<ProductoSchema> buscarProductos(String query) {
-        String queryNorm = query.trim().toLowerCase();
+        // Normalizar y corregir ortografía antes de cualquier otra cosa
+        String queryCorregida = corrector.corregir(query.trim().toLowerCase());
+
         LocalDate hoy = LocalDate.now();
 
-        if (cacheRepository.existeBusqueda(queryNorm, hoy)) {
-            return productoRepository.encontrarProductos(queryNorm);
+        if (cacheRepository.existeBusqueda(queryCorregida, hoy)) {
+            return productoRepository.encontrarProductos(queryCorregida);
         }
 
         // Lógica de caché:
         // - Si esta query exacta ya fue buscada hoy → devuelve desde la BD (sin scrapear)
         // - Si no → scrapea, guarda en BD, registra la query en el caché
-        List<ProductoSchema> resultados = scraperMaster.buscarEnTodos(queryNorm);
+        List<ProductoSchema> resultados = scraperMaster.buscarEnTodos(queryCorregida);
 
-        cacheRepository.registrarBusqueda(queryNorm, hoy);
+        cacheRepository.registrarBusqueda(queryCorregida, hoy);
 
-        return productoRepository.saveAllYObtenerOrdenados(resultados, queryNorm);
+        return productoRepository.saveAllYObtenerOrdenados(resultados, queryCorregida);
     }
 
     /**

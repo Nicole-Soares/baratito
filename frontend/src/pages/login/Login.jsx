@@ -11,66 +11,61 @@ function Login() {
   const navigate = useNavigate()
   const { login } = useAuth()
 
- const handleSubmit = async (e) => {
-     e.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault()
 
-     if (!email.trim() || !password.trim()) {
-       setError('Por favor, completa todos los campos')
-       return
-     }
+    if (!email.trim() || !password.trim()) {
+      setError('Por favor, completa todos los campos')
+      return
+    }
 
-     setError('')
-     setLoading(true)
+    setError('')
+    setLoading(true)
 
-     try {
-       const res = await fetch('http://localhost:8080/api/user/login', {
-         method: 'POST',
-         headers: {
-           'Content-Type': 'application/json',
-         },
-         body: JSON.stringify({nombre: "", email: email.trim(), password }),
-       })
+    try {
+      const res = await fetch('http://localhost:8080/api/user/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email.trim(), password }), // en el login no mandamos el nombre, el back no espera el nombre
+      })
 
-       // 1. Capturamos el header Authorization (igual que hicimos en el Register)
-       const authHeader = res.headers.get('Authorization')
+      const authHeader = res.headers.get('Authorization')
 
-       // 2. Leemos el JSON del body de forma segura (por si viene un mensaje de error)
-       let data = {}
-       const contentType = res.headers.get("content-type")
-       if (contentType && contentType.includes("application/json")) {
-         data = await res.json()
-       }
+      let data = {}
+      const contentType = res.headers.get("content-type")
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json()
+      }
 
-       // 3. Si Spring Boot responde con un error (ej: 401 o 403), lo mostramos
-       if (!res.ok) {
-         setError(data.error || 'Credenciales incorrectas')
-         return
-       }
+      if (!res.ok) {
+        setError(data.error || 'Credenciales incorrectas')
+        return
+      }
 
-       // 4. Si la respuesta es exitosa (200 OK), procesamos el token del Header
-       if (authHeader && authHeader.startsWith('Bearer ')) {
-         const token = authHeader.substring(7) // Cortamos la palabra "Bearer "
-         login(token)
-         navigate('/') // Redirigir al Home tras el login exitoso
-       } else if (data.token) {
-         // Fallback por si acaso en el login viniera en el body
-         login(data.token)
-         navigate('/')
-       } else {
-         setError('No se pudo obtener el token de autenticación')
-       }
+      // Procesamos la respuesta correcta
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7)
+        login(token, data) // Mandamos token y los datos del usuario (id, nombre, email)
+        navigate('/')
+      } else if (data.token) {
+        login(data.token, data)
+        navigate('/')
+      } else {
+        setError('No se pudo obtener el token de autenticación')
+      }
 
-     } catch (err) {
-       console.error(err)
-       setError('No se pudo conectar con el servidor')
-     } finally {
-       setLoading(false)
-     }
-   }
+    } catch (err) {
+      console.error(err)
+      setError('No se pudo conectar con el servidor')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="login-container">
-      {/* Botón flotante para volver atrás al estilo Baratito */}
       <button className="back-btn" onClick={() => navigate('/')}>
         ← Volver al inicio
       </button>

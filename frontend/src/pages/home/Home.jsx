@@ -198,7 +198,7 @@ const handleAgregar = async (productoId, nombreProducto) => {
            {menuOpen && (
              <div className="dropdown-menu">
                <button onClick={() => { navigate("/perfil"); setMenuOpen(false); }}>👤 Perfil</button>
-               <button onClick={() => { navigate("/configuracion"); setMenuOpen(false); }}>🔔 Notificaciones</button>
+               <button onClick={() => { navigate("/notificaciones"); setMenuOpen(false); }}>🔔 Notificaciones</button>
                <button onClick={() => { logout(); setMenuOpen(false); }}>🚪 Cerrar sesión</button>
              </div>
            )}

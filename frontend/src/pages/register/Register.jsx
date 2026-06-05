@@ -14,70 +14,66 @@ function Register() {
   const { login } = useAuth()
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+      e.preventDefault()
 
-    // Validaciones
-    if (!nombre.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-      setError('Por favor, completa todos los campos')
-      return
-    }
-
-    if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden')
-      return
-    }
-
-    if (password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres')
-      return
-    }
-
-    setError('')
-    setLoading(true)
-
-    try {
-      const res = await fetch('http://localhost:8080/api/user/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          nombre: nombre.trim(),
-          email: email.trim(),
-          password
-        }),
-      })
-
-      // 🔍 1. Imprimimos TODO lo que el navegador te permite ver de los headers
-      console.log("--- TEST HEADERS ---")
-      for (let pair of res.headers.entries()) {
-        console.log(`${pair[0]}: ${pair[1]}`);
-      }
-
-      // 🔍 2. Intentamos leer el header Authorization directamente
-      const authHeader = res.headers.get('Authorization')
-      console.log("Valor de authHeader directo:", authHeader)
-      console.log("--------------------")
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        setError(data.error || 'Ocurrió un error al registrarse')
+      // Validaciones
+      if (!nombre.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+        setError('Por favor, completa todos los campos')
         return
       }
 
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.substring(7)
-        login(token)
+      if (password !== confirmPassword) {
+        setError('Las contraseñas no coinciden')
+        return
       }
 
-      navigate('/')
-    } catch (err) {
-      setError('No se pudo conectar con el servidor')
-    } finally {
-      setLoading(false)
+      if (password.length < 6) {
+        setError('La contraseña debe tener al menos 6 caracteres')
+        return
+      }
+
+      setError('')
+      setLoading(true)
+
+      try {
+        const res = await fetch('http://localhost:8080/api/user/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            nombre: nombre.trim(),
+            email: email.trim(),
+            password
+          }),
+        })
+
+
+        const authHeader = res.headers.get('Authorization')
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          setError(data.error || 'Ocurrió un error al registrarse')
+          return
+        }
+
+
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          const token = authHeader.substring(7)
+          login(token, data) //
+        } else if (data.token) {
+          login(data.token, data)
+        }
+
+        navigate('/')
+      } catch (err) {
+        console.error(err) 
+        setError('No se pudo conectar con el servidor')
+      } finally {
+        setLoading(false)
+      }
     }
-  }
 
   return (
     <div className="register-container">

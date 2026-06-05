@@ -450,12 +450,12 @@ body {
   border-radius: var(--radius);
   padding: 12px 16px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
   width: 100%;
   max-width: 650px;
   margin: 0 auto;
-  height: 140px;
+  min-height: 140px;
 }
 
 .product-card:hover {

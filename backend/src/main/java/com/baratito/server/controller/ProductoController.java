@@ -1,5 +1,6 @@
 package com.baratito.server.controller;
 
+import com.baratito.server.model.PrecioHistorico;
 import com.baratito.server.model.ProductoSchema;
 import com.baratito.server.service.ProductoService;
 import org.springframework.http.ResponseEntity;
@@ -102,11 +103,21 @@ public class ProductoController {
     }
 
     @GetMapping("/sugerencias")
-    public ResponseEntity<List<String>> obtenerSugerencias(
-            @RequestParam String query
+    public ResponseEntity<List<String>> obtenerSugerencias(@RequestParam String query) {
+        return ResponseEntity.ok(productoService.obtenerSugerencias(query));
+    }
+
+    /**
+     * GET /api/productos/historial?link={link}&dias={dias}
+     *
+     * Devuelve el historial de precios de un producto específico.
+     *
+     */
+    @GetMapping("/historial")
+    public ResponseEntity<List<PrecioHistorico>> obtenerHistorial(
+            @RequestParam String link,
+            @RequestParam(defaultValue = "30") int dias
     ) {
-        return ResponseEntity.ok(
-                productoService.obtenerSugerencias(query)
-        );
+        return ResponseEntity.ok(productoService.obtenerHistorialPrecios(link, dias));
     }
 }

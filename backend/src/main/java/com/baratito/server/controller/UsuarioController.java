@@ -1,5 +1,6 @@
 package com.baratito.server.controller;
 import com.baratito.server.controller.dto.usuario.UsuarioDTO;
+import com.baratito.server.controller.dto.usuario.UsuarioLoginDTO;
 import com.baratito.server.model.Usuario;
 import com.baratito.server.security.TokenService;
 import com.baratito.server.service.UsuarioService;
@@ -52,7 +53,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody Usuario usuario) {
+    public ResponseEntity<?> login(@Valid @RequestBody UsuarioLoginDTO usuario) {
 
         Usuario usuarioEncontrado = usuarioService.login(usuario.getEmail(), usuario.getPassword());
 

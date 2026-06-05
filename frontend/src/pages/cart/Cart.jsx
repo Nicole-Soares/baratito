@@ -6,7 +6,7 @@ function Cart() {
   const navigate = useNavigate()
   const { cart, quitarProducto, popup } = useCart()
 
-  // los datos del carrito estan en el context
+  // Los datos del carrito están en el context
   if (!cart || !cart.productos) return <p>Cargando carrito...</p>
 
   return (
@@ -18,11 +18,13 @@ function Cart() {
         </div>
       )}
 
-      <h1 className="cart-title">Mi carrito</h1>
-
-      <button className="back-button" onClick={() => navigate('/')}>
-        ← Volver
-      </button>
+      {/* Encabezado alineado con las tarjetas */}
+      <header className="cart-header">
+        <h1 className="cart-title">Mi carrito</h1>
+        <button className="back-button" onClick={() => navigate('/')}>
+          ← Volver
+        </button>
+      </header>
 
       <div className="cart-list">
         {cart.productos.length === 0 ? (
@@ -68,7 +70,6 @@ function Cart() {
           <span>${cart.total.toLocaleString('es-AR')}</span>
         </div>
       )}
-
     </div>
   )
 }

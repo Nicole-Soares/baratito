@@ -24,9 +24,12 @@ public ProductoRepositoryImpl(ProductoSQLDAO productoSQLDAO) {
 
     @Override
     public List<ProductoSchema> encontrarProductos(String query) {
-        String queryNormalizado = query.trim();
+        // busca por nombre del producto, tanto individualmente o si es contenido, ignora si fue escrito en mayus o minus,
+        //ordena de manera ascendente
 
-        return productoSQLDAO.buscarPorTextoDifuso(queryNormalizado);
+        LocalDate hoy = LocalDate.now();
+        return productoSQLDAO.findByNombreContainingIgnoreCaseAndActualizadoAndDisponibilidadTrueOrderByPrecioAsc(query, hoy);
+
     }
 
     @Override
@@ -72,8 +75,8 @@ public ProductoRepositoryImpl(ProductoSQLDAO productoSQLDAO) {
             );
         }
 
-        // se devuelve todo ordenado con la misma lógica difusa que usa la búsqueda normal
-        return productoSQLDAO.buscarPorTextoDifuso(query);
+        // se devuelve todo ordenado
+        return productoSQLDAO.findByNombreContainingIgnoreCaseAndActualizadoAndDisponibilidadTrueOrderByPrecioAsc(query, (LocalDate.now()));
     }
 
     @Override

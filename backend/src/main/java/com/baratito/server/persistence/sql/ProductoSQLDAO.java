@@ -17,23 +17,6 @@ public interface ProductoSQLDAO extends JpaRepository<ProductoSchema, Long> {
 
     List<ProductoSchema> findByNombreContainingIgnoreCaseAndActualizadoAndDisponibilidadTrueOrderByPrecioAsc(String nombre, LocalDate actualizado);
 
-    @Query(value = """
-            SELECT *
-            FROM producto_schema p
-            WHERE p.disponibilidad = true
-              AND (
-                  LOWER(unaccent(p.nombre)) LIKE LOWER(CONCAT('%', unaccent(:query), '%'))
-                  OR translate(LOWER(unaccent(p.nombre)), 'zcsvb', 'sssss')
-                      LIKE LOWER(CONCAT('%', translate(unaccent(:query), 'zcsvb', 'sssss'), '%'))
-                  OR similarity(
-                      translate(LOWER(unaccent(p.nombre)), 'zcsvb', 'sssss'),
-                      translate(unaccent(LOWER(:query)), 'zcsvb', 'sssss')
-                  ) >= 0.25
-              )
-            ORDER BY p.precio ASC
-            """, nativeQuery = true)
-    List<ProductoSchema> buscarPorTextoDifuso(@Param("query") String query);
-
     Optional<ProductoSchema> findByLink(String link);
 
     @Modifying

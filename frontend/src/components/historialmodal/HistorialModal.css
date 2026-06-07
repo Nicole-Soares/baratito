@@ -1,0 +1,191 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+  backdrop-filter: blur(2px);
+  animation: overlayFadeIn 0.15s ease;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal-container {
+  background: #1a1a24;
+  border: 1px solid #2a2a3a;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 680px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  animation: modalSlideIn 0.2s ease;
+  overflow: hidden;
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Header ── */
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #2a2a3a;
+}
+
+.modal-titulo {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.modal-icono {
+  font-size: 1.5rem;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.modal-nombre {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f0f0f5;
+  margin: 0 0 2px;
+  line-height: 1.3;
+  max-width: 480px;
+
+  /* Truncar si es muy largo */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.modal-subtitulo {
+  font-size: 0.8rem;
+  color: #888899;
+  margin: 0;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: #888899;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f0f0f5;
+}
+
+/* ── Selector de rango ── */
+.modal-rangos {
+  display: flex;
+  gap: 8px;
+  padding: 16px 24px;
+  border-bottom: 1px solid #2a2a3a;
+}
+
+.rango-btn {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1.5px solid #2a2a3a;
+  background: transparent;
+  color: #888899;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.rango-btn:hover {
+  border-color: #7c5cfc;
+  color: #f0f0f5;
+}
+
+.rango-btn--activo {
+  border-color: #7c5cfc;
+  background: rgba(124, 92, 252, 0.15);
+  color: #f0f0f5;
+}
+
+/* ── Cuerpo ── */
+.modal-body {
+  padding: 20px 24px 24px;
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-body > * {
+  width: 100%;
+}
+
+.modal-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #888899;
+  font-size: 0.9rem;
+  justify-content: center;
+}
+
+.modal-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #2a2a3a;
+  border-top-color: #7c5cfc;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.modal-error {
+  color: #ff5c5c;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.modal-vacio {
+  color: #888899;
+  text-align: center;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* ── Botón en la card ── */
+.historial-btn {
+  background: transparent;
+  border: none;
+  color: #7c5cfc;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 6px;
+  transition: color 0.15s ease;
+  text-align: left;
+}
+
+.historial-btn:hover {
+  color: #a78bfa;
+  text-decoration: underline;
+}

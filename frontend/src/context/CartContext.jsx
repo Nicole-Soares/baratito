@@ -15,35 +15,67 @@ export function CartProvider({ children }) {
   }
 
   const fetchCart = async () => {
-    try {
-      const res = await fetch('http://localhost:8080/api/carrito')
-      const data = await res.json()
-      setCart(data)
-    } catch (err) {
-      console.error("Error cargando carrito:", err)
-    }
+  const token = localStorage.getItem("token")
+  if (!token) {
+    return
+  }
+
+  try {
+    const res = await fetch("http://localhost:8080/api/carrito", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    const data = await res.json()
+    setCart(data)
+
+  } catch (err) {
+    console.error("Error cargando carrito:", err)
+  }
   }
 
   useEffect(() => {
+  const token = localStorage.getItem("token")
+
+  if (token) {
     fetchCart()
+  }
   }, [])
 
   const agregarProducto = async (productoId, nombreProducto) => {
-    try {
-      const res = await fetch(`http://localhost:8080/api/carrito/${productoId}`, { method: 'POST' })
-      const data = await res.json()
-      setCart(data)
+  try {
+    const token = localStorage.getItem("token")
 
+    const res = await fetch(
+      `http://localhost:8080/api/carrito/${productoId}`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
 
-      mostrarPopup(`✓ ${nombreProducto} agregado`, 'agregado')
-    } catch {
-      mostrarPopup('No se pudo agregar al carrito', 'error')
-    }
+    const data = await res.json()
+    setCart(data)
+
+    mostrarPopup(`✓ ${nombreProducto} agregado`, 'agregado')
+  } catch {
+    mostrarPopup('No se pudo agregar al carrito', 'error')
   }
+}
 
   const quitarProducto = async (productoId, nombreProducto) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/carrito/${productoId}`, { method: 'DELETE' })
+      const token = localStorage.getItem("token")
+
+      const res = await fetch(`http://localhost:8080/api/carrito/${productoId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
       const data = await res.json()
       setCart(data)
 
@@ -54,9 +86,16 @@ export function CartProvider({ children }) {
     }
   }
 
+  const limpiarCarrito = () => {
+  setCart({
+    productos: [],
+    total: 0
+  })
+}
+
   return (
 
-    <CartContext.Provider value={{ cart, popup, agregarProducto, quitarProducto, mostrarPopup }}>
+    <CartContext.Provider value={{ cart, popup, agregarProducto, quitarProducto, mostrarPopup, limpiarCarrito }}>
       {children}
     </CartContext.Provider>
   )

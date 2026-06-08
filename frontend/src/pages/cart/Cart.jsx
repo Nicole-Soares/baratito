@@ -1,44 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
-import { useEffect, useState } from "react"
 import './Cart.css'
 
 function Cart() {
   const navigate = useNavigate()
-  const { cart, agregarProducto, quitarProducto, popup, limpiarCarrito } = useCart()
-  const [historial, setHistorial] = useState([])
-
-  useEffect(() => {
-
-  const cargarHistorial = async () => {
-
-    const token = localStorage.getItem("token")
-
-    if (!token) return
-
-    try {
-
-      const res = await fetch(
-        "http://localhost:8080/api/historial",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
-
-      const data = await res.json()
-
-      setHistorial(data)
-
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  cargarHistorial()
-
-  }, [])
+  const { cart, quitarProducto, popup } = useCart()
 
   // Los datos del carrito están en el context
   if (!cart || !cart.productos) return <p>Cargando carrito...</p>
@@ -104,45 +70,6 @@ function Cart() {
           <span>${cart.total.toLocaleString('es-AR')}</span>
         </div>
       )}
-      {historial.length > 0 && (
-        <div className="historial-section">
-        
-          <h2 className="historial-title">
-            Productos agregados anteriormente
-          </h2>
-
-          <div className="historial-scroll">
-
-            {historial.map(producto => (
-            
-              <div key={producto.id}
-                   className="historial-card">
-                <img
-                  src={producto.imagen}
-                  alt={producto.nombre}
-                  className="historial-image"
-                />
-                <p className="historial-name">
-                  {producto.nombre}
-                </p>
-                <p className="historial-price">
-                  ${producto.precio}
-                </p>
-                <button className="historial-add-btn"
-                        onClick={() => agregarProducto(
-                                        producto.productoId,
-                                        producto.nombre)}>
-                  ➕ Volver a agregar
-                </button>
-              </div>
-
-            ))}
-
-          </div>
-          
-        </div>
-      )}      
-
     </div>
   )
 }

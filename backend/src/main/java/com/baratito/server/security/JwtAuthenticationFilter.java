@@ -31,8 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
 
-            System.out.println("HEADER = " + header);
-            System.out.println("TOKEN = " + token);
+            System.out.println("JwtAuthenticationFilter ejecutado, header=" + header);
 
             try {
                 Long userId = tokenService.validateToken(token);
@@ -43,7 +42,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
             } catch (Exception e) {
-                e.printStackTrace();
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }

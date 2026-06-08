@@ -3,7 +3,6 @@ import com.baratito.server.controller.dto.usuario.UsuarioDTO;
 import com.baratito.server.controller.dto.usuario.UsuarioLoginDTO;
 import com.baratito.server.model.Usuario;
 import com.baratito.server.security.TokenService;
-import com.baratito.server.service.CarritoService;
 import com.baratito.server.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -31,12 +30,10 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
     private final TokenService tokenService;
-    private final CarritoService carritoService;
 
-    public UsuarioController(UsuarioService usuarioService, TokenService tokenService, CarritoService carritoService) {
+    public UsuarioController(UsuarioService usuarioService, TokenService tokenService) {
         this.usuarioService = usuarioService;
         this.tokenService = tokenService;
-        this.carritoService = carritoService;
     }
 
     @PostMapping("/register")
@@ -68,14 +65,5 @@ public class UsuarioController {
                 .header("Authorization", "Bearer " + token)
                 .body(respuesta);
     }
-
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
-
-        carritoService.guardarHistorial();
-
-        return ResponseEntity.ok().body("Logout exitoso");
-    }
-
 }
 

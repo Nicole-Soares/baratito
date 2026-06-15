@@ -1,0 +1,191 @@
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bg);
+  padding: 40px 20px; /* Un poco más de padding arriba por si la pantalla es baja */
+  position: relative;
+}
+
+/* Botón de volver atrás */
+.back-btn {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.back-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  background-color: var(--bg-card-hover);
+}
+
+/* Tarjeta central del Registro */
+.register-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 440px; /* Un pelín más ancha para albergar los inputs de forma cómoda */
+  padding: 40px 32px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  transition: border-color var(--transition);
+}
+
+.register-card:hover {
+  border-color: rgba(124, 92, 252, 0.4);
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.register-subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-top: 6px;
+}
+
+/* Formulario */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.5px;
+}
+
+/* Contenedor de inputs estilo search-bar */
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  gap: 12px;
+  transition: border-color var(--transition);
+}
+
+.input-wrapper:focus-within {
+  border-color: var(--accent);
+}
+
+.input-wrapper--error {
+  border-color: var(--error) !important;
+}
+
+.input-icon {
+  font-size: 1.1rem;
+  opacity: 0.5;
+  user-select: none;
+}
+
+.input-wrapper input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.input-wrapper input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Alertas de error */
+.register-error {
+  color: var(--error);
+  font-size: 0.85rem;
+  padding: 10px 12px;
+  background: var(--error-bg);
+  border-radius: 6px;
+  border-left: 3px solid var(--error);
+}
+
+/* Botón de envío */
+.register-submit-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), opacity var(--transition);
+  margin-top: 8px;
+}
+
+.register-submit-btn:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.register-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Footer */
+.register-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.login-link {
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color var(--transition);
+}
+
+.login-link:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+/* Ajustes Mobile */
+@media (max-width: 480px) {
+  .register-container {
+    padding: 20px 10px;
+    align-items: flex-start; /* Permite scroll cómodo si el teclado del celular tapa inputs */
+  }
+
+  .register-card {
+    padding: 32px 16px;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    margin-top: 40px; /* Deja espacio para el botón de volver atrás */
+  }
+
+  .back-btn {
+    top: 16px;
+    left: 16px;
+  }
+}

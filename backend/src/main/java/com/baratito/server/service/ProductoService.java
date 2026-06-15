@@ -1,11 +1,12 @@
 package com.baratito.server.service;
 
+import com.baratito.server.model.PrecioHistorico;
 import com.baratito.server.model.ProductoSchema;
 import com.baratito.server.persistence.interfaces.CacheRepository;
 import com.baratito.server.persistence.interfaces.ProductoRepository;
 import com.baratito.server.scraper.ScraperMaster;
+import com.baratito.server.utils.CorrectorOrtografico;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -18,13 +19,16 @@ public class ProductoService {
     private final ScraperMaster scraperMaster;
     private final ProductoRepository productoRepository;
     private final CacheRepository cacheRepository;
+    private final CorrectorOrtografico corrector;
 
     public ProductoService(ScraperMaster scraperMaster,
                            ProductoRepository productoRepository,
-                           CacheRepository cacheRepository) {
+                           CacheRepository cacheRepository,
+                           CorrectorOrtografico corrector) {
         this.scraperMaster = scraperMaster;
         this.productoRepository = productoRepository;
         this.cacheRepository = cacheRepository;
+        this.corrector = corrector;
     }
 
     // ──────────────────────────── Búsqueda ────────────────────────────────────
@@ -35,21 +39,23 @@ public class ProductoService {
      * @return lista de productos de todos los supermercados, ordenada por precio
      */
     public List<ProductoSchema> buscarProductos(String query) {
-        String queryNorm = query.trim().toLowerCase();
+        // Normalizar y corregir ortografía antes de cualquier otra cosa
+        String queryCorregida = corrector.corregir(query.trim().toLowerCase());
+
         LocalDate hoy = LocalDate.now();
 
-        if (cacheRepository.existeBusqueda(queryNorm, hoy)) {
-            return productoRepository.encontrarProductos(queryNorm);
+        if (cacheRepository.existeBusqueda(queryCorregida, hoy)) {
+            return productoRepository.encontrarProductos(queryCorregida);
         }
 
         // Lógica de caché:
         // - Si esta query exacta ya fue buscada hoy → devuelve desde la BD (sin scrapear)
         // - Si no → scrapea, guarda en BD, registra la query en el caché
-        List<ProductoSchema> resultados = scraperMaster.buscarEnTodos(queryNorm);
+        List<ProductoSchema> resultados = scraperMaster.buscarEnTodos(queryCorregida);
 
-        cacheRepository.registrarBusqueda(queryNorm, hoy);
+        cacheRepository.registrarBusqueda(queryCorregida, hoy);
 
-        return productoRepository.saveAllYObtenerOrdenados(resultados, queryNorm);
+        return productoRepository.saveAllYObtenerOrdenados(resultados, queryCorregida);
     }
 
     /**
@@ -76,15 +82,22 @@ public class ProductoService {
 
     }
 
-    public List<String> obtenerSugerencias (String query) {
+    public List<String> obtenerSugerencias(String query) {
+        if (query == null || query.trim().length() < 2) return List.of(); //evita hacer consultas si el texto es menor a 2 caracteres
+        return productoRepository.obtenerSugerencias(query.trim().toLowerCase());
+    }
 
-        if (query == null || query.trim().length() < 2) { //evita hacer consultas si el texto es menor a 2 caracteres
-            return List.of();
-        }
+    // ──────────────────────── Historial de precios ────────────────────────────
 
-        String queryNorm = query.trim().toLowerCase(); // normalizamos la query para que no haya problemas de mayus/minus o espacios al buscar en la BD
-
-        return productoRepository.obtenerSugerencias(queryNorm);
+    /**
+     * Devuelve los snapshots de precio de un producto en los últimos X días.
+     * @param link identificador único del producto (su URL en el supermercado)
+     * @param dias cantidad de días hacia atrás a consultar (ej: 7, 15, 30)
+     * @return lista de snapshots ordenados por fecha ascendente
+     */
+    public List<PrecioHistorico> obtenerHistorialPrecios(String link, int dias) {
+        if (dias <= 0 || dias > 90) dias = 30; // límite de seguridad
+        return productoRepository.obtenerHistorial(link, dias);
     }
 
     // ──────────────────────── Consultas de metadatos ──────────────────────────
@@ -98,9 +111,6 @@ public class ProductoService {
     }
 
     // ───────────────────── Futuras operaciones con BD ─────────────────────────
-
-    // TODO: historial de precios
-    // public List<PrecioHistorico> getHistorialPrecios(String productoId) { ... }
 
     // TODO: alertas de precio
     // public void crearAlertaPrecio(String productoId, double precioObjetivo) { ... }

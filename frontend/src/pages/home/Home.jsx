@@ -21,7 +21,7 @@ function Home() {
   const navigate = useNavigate()
 
 
-  const totalProductos = cart.productos.reduce((acc, p) => acc + p.cantidad, 0)
+  const totalProductos = (cart?.productos || []).reduce((acc, p) => acc + p.cantidad,0)
 
     const handleIncrement = async (productoId, nombreProducto) => {
         agregarProducto(productoId, nombreProducto)

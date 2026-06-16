@@ -1,12 +1,9 @@
 package com.baratito.server;
 import com.baratito.server.model.CarritoItem;
 import com.baratito.server.model.ProductoSchema;
-import com.baratito.server.model.Usuario;
 import com.baratito.server.persistence.interfaces.CarritoRepository;
-import com.baratito.server.persistence.interfaces.UsuarioRepository;
 import com.baratito.server.persistence.sql.ProductoSQLDAO;
 import com.baratito.server.service.CarritoService;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,8 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -49,55 +44,22 @@ class CarritoServiceTest {
     @Autowired
     private CarritoService carritoService;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
     private ProductoSchema productoSchema;
     private ProductoSchema productoSchema2;
-    private Usuario usuarioTest;
 
     @BeforeEach
     void setUp() {
-
-        // 1.Limpiamos contexto de seguridad
-        SecurityContextHolder.clearContext();
-
-        // 2. Limpiamos las tablas para asegurar un entorno controlado
+        // 1. Limpiamos las tablas para asegurar un entorno controlado
         carritoRepository.deleteAll();
         productoSQLDAO.deleteAll();
 
-        // 3. Crear usuario de prueba
-        usuarioTest = new Usuario();
-        usuarioTest.setNombre("Usuario Test");
-        usuarioTest.setEmail("test@test.com");
-        usuarioTest.setPassword("1234");
-
-        usuarioTest = usuarioRepository.save(usuarioTest);
-
-        // 4. Simular usuario autenticado
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(
-                        usuarioTest.getId(),
-                        null,
-                        null
-                );
-
-        SecurityContextHolder
-                .getContext()
-                .setAuthentication(authentication);
-
-        // 5. Instanciamos los productos usando tus datos reales
+        // 2. Instanciamos los productos usando tus datos reales
         productoSchema = new ProductoSchema("coto", "Yerba Playadito 1kg", "http://coto.com/playadito", "img_url", true, 4500.0, 5000.0, LocalDate.now());
         productoSchema2 = new ProductoSchema("dia", "Yerba Mañanita 1kg", "http://dia.com/mananita", "img_url", true, 3800.0, 4000.0, LocalDate.now());
 
 
         productoSchema = productoSQLDAO.save(productoSchema);
         productoSchema2 = productoSQLDAO.save(productoSchema2);
-    }
-
-    @AfterEach
-    void tearDown() {
-        SecurityContextHolder.clearContext();
     }
 
 

@@ -152,6 +152,8 @@
 
 .historial-section {
   margin-top: 2rem;
+  width: 100%;
+  overflow: hidden;
 }
 
 .historial-title {
@@ -164,8 +166,12 @@
   display: flex;
   gap: 1rem;
   overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+  max-width: 100%;
   padding-bottom: 0.5rem;
   scrollbar-width: thin;
+  box-sizing: border-box;
 }
 
 .historial-scroll::-webkit-scrollbar {

@@ -1,12 +1,14 @@
 package com.baratito.server.persistence.impl;
 
+import com.baratito.server.model.PrecioHistorico;
 import com.baratito.server.model.ProductoSchema;
 import com.baratito.server.persistence.interfaces.ProductoRepository;
+import com.baratito.server.persistence.sql.PrecioHistoricoSQLDAO;
 import com.baratito.server.persistence.sql.ProductoSQLDAO;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -17,12 +19,13 @@ import java.util.stream.Collectors;
 public class ProductoRepositoryImpl implements ProductoRepository {
 
     private final ProductoSQLDAO productoSQLDAO;
+    private final PrecioHistoricoSQLDAO precioHistoricoSQLDAO;
 
-
-public ProductoRepositoryImpl(ProductoSQLDAO productoSQLDAO) {
-    this.productoSQLDAO = productoSQLDAO;
-}
-
+    public ProductoRepositoryImpl(ProductoSQLDAO productoSQLDAO,
+                                  PrecioHistoricoSQLDAO precioHistoricoSQLDAO) {
+        this.productoSQLDAO = productoSQLDAO;
+        this.precioHistoricoSQLDAO = precioHistoricoSQLDAO;
+    }
 
     @Override
     public List<ProductoSchema> encontrarProductos(String query) {
@@ -75,10 +78,27 @@ public ProductoRepositoryImpl(ProductoSQLDAO productoSQLDAO) {
                         productoSQLDAO.save(p);
                     }
             );
+
+            // Guardar snapshot en historial si no existe uno para este link+fecha
+            // Así evitamos duplicados si el mismo producto se busca varias veces en el día
+            if (!precioHistoricoSQLDAO.existsByProductoLinkAndFecha(p.getLink(), hoy)) {
+                precioHistoricoSQLDAO.save(new PrecioHistorico(
+                        p.getLink(),
+                        p.getSource(),
+                        p.getNombre(),
+                        p.getPrecio(),
+                        hoy
+                ));
+            }
         }
 
-        // se devuelve todo ordenado
-        return productoSQLDAO.findByNombreContainingIgnoreCaseAndActualizadoAndDisponibilidadTrueOrderByPrecioAsc(query, (LocalDate.now()));
+        return productoSQLDAO.findByNombreContainingIgnoreCaseAndActualizadoAndDisponibilidadTrueOrderByPrecioAsc(query, hoy);
+    }
+
+    @Override
+    public List<PrecioHistorico> obtenerHistorial(String link, int dias) {
+        LocalDate desde = LocalDate.now().minusDays(dias);
+        return precioHistoricoSQLDAO.findByProductoLinkAndFechaGreaterThanEqual(link, desde);
     }
 
     @Override
@@ -92,9 +112,6 @@ public ProductoRepositoryImpl(ProductoSQLDAO productoSQLDAO) {
     }
 
     @Override
-    /*
-    *
-    * */
     public List<String> obtenerSugerencias(String query) {
 
         Pageable pageable = PageRequest.of(0, 5); //lo limito a 5 sugerencias

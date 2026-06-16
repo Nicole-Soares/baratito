@@ -14,9 +14,6 @@ public class CarritoItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // este es el id del registro en la tabla
 
-    @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
 
     @Column(name = "producto_id", nullable = false)
     @com.fasterxml.jackson.annotation.JsonProperty("productoId")
@@ -42,14 +39,6 @@ public class CarritoItem {
     // Agrega el getter explícito abajo por si Lombok está teniendo conflicto
     public Long getProductoId() {
         return this.productoId;
-    }
-
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
     }
 
 }

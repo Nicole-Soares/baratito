@@ -148,6 +148,8 @@
   text-align: center;
   margin-top: 50px;
   color: #b7b7c9;
+<<<<<<< Updated upstream
+=======
 }
 
 .historial-section {
@@ -190,7 +192,6 @@
   max-width: 220px;
   padding: 1rem;
   flex-shrink: 0;
-
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -244,4 +245,5 @@
 
 .historial-add-btn:active {
   transform: scale(0.97);
+>>>>>>> Stashed changes
 }

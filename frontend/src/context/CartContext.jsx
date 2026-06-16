@@ -15,67 +15,35 @@ export function CartProvider({ children }) {
   }
 
   const fetchCart = async () => {
-  const token = localStorage.getItem("token")
-  if (!token) {
-    return
-  }
-
-  try {
-    const res = await fetch("http://localhost:8080/api/carrito", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-
-    const data = await res.json()
-    setCart(data)
-
-  } catch (err) {
-    console.error("Error cargando carrito:", err)
-  }
+    try {
+      const res = await fetch('http://localhost:8080/api/carrito')
+      const data = await res.json()
+      setCart(data)
+    } catch (err) {
+      console.error("Error cargando carrito:", err)
+    }
   }
 
   useEffect(() => {
-  const token = localStorage.getItem("token")
-
-  if (token) {
     fetchCart()
-  }
   }, [])
 
   const agregarProducto = async (productoId, nombreProducto) => {
-  try {
-    const token = localStorage.getItem("token")
+    try {
+      const res = await fetch(`http://localhost:8080/api/carrito/${productoId}`, { method: 'POST' })
+      const data = await res.json()
+      setCart(data)
 
-    const res = await fetch(
-      `http://localhost:8080/api/carrito/${productoId}`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    )
 
-    const data = await res.json()
-    setCart(data)
-
-    mostrarPopup(`✓ ${nombreProducto} agregado`, 'agregado')
-  } catch {
-    mostrarPopup('No se pudo agregar al carrito', 'error')
+      mostrarPopup(`✓ ${nombreProducto} agregado`, 'agregado')
+    } catch {
+      mostrarPopup('No se pudo agregar al carrito', 'error')
+    }
   }
-}
 
   const quitarProducto = async (productoId, nombreProducto) => {
     try {
-      const token = localStorage.getItem("token")
-
-      const res = await fetch(`http://localhost:8080/api/carrito/${productoId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
+      const res = await fetch(`http://localhost:8080/api/carrito/${productoId}`, { method: 'DELETE' })
       const data = await res.json()
       setCart(data)
 
@@ -86,16 +54,19 @@ export function CartProvider({ children }) {
     }
   }
 
+<<<<<<< Updated upstream
+=======
   const limpiarCarrito = () => {
   setCart({
     productos: [],
     total: 0
   })
-}
+  }
 
+>>>>>>> Stashed changes
   return (
 
-    <CartContext.Provider value={{ cart, popup, agregarProducto, quitarProducto, mostrarPopup, limpiarCarrito }}>
+    <CartContext.Provider value={{ cart, popup, agregarProducto, quitarProducto, mostrarPopup }}>
       {children}
     </CartContext.Provider>
   )

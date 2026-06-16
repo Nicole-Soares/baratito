@@ -35,30 +35,24 @@ export function AuthProvider({ children }) {
   }
 
   // 3. Al cerrar sesión limpiamos todo junto
-  const logout = async () => {
-
-  const token = localStorage.getItem("token")
-
-  try {
-    await fetch("http://localhost:8080/api/user/logout", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-  } catch (error) {
-    console.error("Error al guardar historial:", error)
+  const logout = () => {
+    localStorage.removeItem("token")
+    localStorage.removeItem("user")
+    setUser(null)
+    setIsLoggedIn(false)
   }
 
+<<<<<<< Updated upstream
+=======
   localStorage.removeItem("token")
   localStorage.removeItem("user")
-
+  
   setUser(null)
   setIsLoggedIn(false)
 
-  window.location.reload()
 }
 
+>>>>>>> Stashed changes
   // 4. Agregamos 'user' al value para que lo pueda usar la página de perfil
   return (
     <AuthContext.Provider value={{ isLoggedIn, user, login, logout }}>

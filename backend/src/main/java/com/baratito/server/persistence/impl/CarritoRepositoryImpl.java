@@ -46,6 +46,16 @@ public class CarritoRepositoryImpl implements CarritoRepository {
     }
 
     @Override
+    public List<CarritoItem> findByUsuarioId(Long usuarioId) {
+        return carritoSQLDAO.findByUsuario_Id(usuarioId);
+    }
+
+    @Override
+    public Optional<CarritoItem> findByUsuarioIdAndProductoId(Long usuarioId, Long productoId) {
+        return carritoSQLDAO.findByUsuario_IdAndProductoId(usuarioId, productoId);
+    }
+
+    @Override
     public Optional<CarritoItem> findByProductoId(Long productoId) {
         return carritoSQLDAO.findByProductoId(productoId);
     }

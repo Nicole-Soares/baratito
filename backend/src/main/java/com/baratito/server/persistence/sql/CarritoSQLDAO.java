@@ -6,5 +6,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CarritoSQLDAO extends JpaRepository<CarritoItem, Long> {
+
     Optional<CarritoItem> findByProductoId(Long productoId);
+
+    List<CarritoItem> findByUsuario_Id(Long usuarioId);
+
+    Optional<CarritoItem> findByUsuario_IdAndProductoId(
+            Long usuarioId,
+            Long productoId
+    );
 }

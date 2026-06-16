@@ -54,6 +54,16 @@ export function CartProvider({ children }) {
     }
   }
 
+<<<<<<< Updated upstream
+=======
+  const limpiarCarrito = () => {
+  setCart({
+    productos: [],
+    total: 0
+  })
+  }
+
+>>>>>>> Stashed changes
   return (
 
     <CartContext.Provider value={{ cart, popup, agregarProducto, quitarProducto, mostrarPopup }}>

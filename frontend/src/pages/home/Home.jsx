@@ -11,7 +11,7 @@ function Home() {
   const [agregados, setAgregados] = useState({})
   const [filtrosActivos, setFiltrosActivos] = useState([])
   const [sugerencias, setSugerencias] = useState([])
-  const { cart, popup, agregarProducto, quitarProducto } = useCart()
+  const { cart, popup, agregarProducto, quitarProducto, limpiarCarrito } = useCart()
   const { resultados, setResultados, busquedaActual, setBusquedaActual, error, setError, loading, setLoading } = useSearch()
   const [mensajeCarrito, setMensajeCarrito] = useState('')
   const [indiceSeleccionado, setIndiceSeleccionado] = useState(-1)
@@ -170,6 +170,11 @@ const handleAgregar = async (productoId, nombreProducto) => {
   }
 }
 
+const handleLogout = async () => {
+  await logout()
+  limpiarCarrito()
+}
+
   return (
     <div className="app">
    {popup && (
@@ -199,7 +204,10 @@ const handleAgregar = async (productoId, nombreProducto) => {
              <div className="dropdown-menu">
                <button onClick={() => { navigate("/perfil"); setMenuOpen(false); }}>👤 Perfil</button>
                <button onClick={() => { navigate("/notificaciones"); setMenuOpen(false); }}>🔔 Notificaciones</button>
-               <button onClick={() => { logout(); setMenuOpen(false); }}>🚪 Cerrar sesión</button>
+               <button onClick={async () => {
+                                  await handleLogout()
+                                  setMenuOpen(false)}}>
+                              🚪 Cerrar sesión</button>
              </div>
            )}
          </div>

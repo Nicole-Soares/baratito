@@ -42,6 +42,17 @@ export function AuthProvider({ children }) {
     setIsLoggedIn(false)
   }
 
+<<<<<<< Updated upstream
+=======
+  localStorage.removeItem("token")
+  localStorage.removeItem("user")
+  
+  setUser(null)
+  setIsLoggedIn(false)
+
+}
+
+>>>>>>> Stashed changes
   // 4. Agregamos 'user' al value para que lo pueda usar la página de perfil
   return (
     <AuthContext.Provider value={{ isLoggedIn, user, login, logout }}>

@@ -1,10 +1,14 @@
 import React, { useState } from 'react'
 import { useCart } from '../../context/CartContext'
+import { useFavoritos } from '../../context/FavoritosContext'
 import HistorialModal from '../historialmodal/HistorialModal'
 
 function CardProducto({ producto }) {
   const { cart, agregarProducto, quitarProducto } = useCart()
+  const { esFavorito, toggleFavorito } = useFavoritos()
   const [mostrarHistorial, setMostrarHistorial] = useState(false)
+
+  const favorito = esFavorito(producto.id)
 
   const item = cart?.productos?.find(
     p => p.nombre === producto.nombre && p.imagen === producto.imagen
@@ -55,6 +59,15 @@ function CardProducto({ producto }) {
         {/* Acciones */}
         <div className="product-actions-container">
           <div className="product-actions-group">
+            {/* Botón de favorito */}
+            <button
+              className={`favorite-btn ${favorito ? 'active' : ''}`}
+              onClick={() => toggleFavorito(producto.id, producto.nombre)}
+              title={favorito ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+            >
+              {favorito ? '❤️' : '🤍'}
+            </button>
+
             {/* Logo del Supermercado */}
             <img
               className="supermarket-logo"

@@ -195,13 +195,14 @@ const handleAgregar = async (productoId, nombreProducto) => {
              <span className="hamburger-line"></span>
            </button>
 
-           {menuOpen && (
-             <div className="dropdown-menu">
-               <button onClick={() => { navigate("/perfil"); setMenuOpen(false); }}>👤 Perfil</button>
-               <button onClick={() => { navigate("/notificaciones"); setMenuOpen(false); }}>🔔 Notificaciones</button>
-               <button onClick={() => { logout(); setMenuOpen(false); }}>🚪 Cerrar sesión</button>
-             </div>
-           )}
+            {menuOpen && (
+              <div className="dropdown-menu">
+                <button onClick={() => { navigate("/perfil"); setMenuOpen(false); }}>👤 Perfil</button>
+                <button onClick={() => { navigate("/favoritos"); setMenuOpen(false); }}>❤️ Favoritos</button>
+                <button onClick={() => { navigate("/notificaciones"); setMenuOpen(false); }}>🔔 Notificaciones</button>
+                <button onClick={() => { logout(); setMenuOpen(false); }}>🚪 Cerrar sesión</button>
+              </div>
+            )}
          </div>
        ) : (
          <button className="auth-button" onClick={() => navigate("/login")}>

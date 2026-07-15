@@ -25,7 +25,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
-@CrossOrigin(origins = "*", exposedHeaders = "Authorization")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;

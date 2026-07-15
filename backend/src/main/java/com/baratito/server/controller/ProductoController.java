@@ -114,10 +114,15 @@ public class ProductoController {
      *
      */
     @GetMapping("/historial")
-    public ResponseEntity<List<PrecioHistorico>> obtenerHistorial(
-            @RequestParam String link,
+    public ResponseEntity<?> obtenerHistorial(
+            @RequestParam(required = true) String link,
             @RequestParam(defaultValue = "30") int dias
     ) {
+        // Si el link llega vacío, evitamos que llegue al Service
+        if (link == null || link.isBlank()) {
+            return ResponseEntity.badRequest().body("Link inválido");
+        }
+
         return ResponseEntity.ok(productoService.obtenerHistorialPrecios(link, dias));
     }
 }

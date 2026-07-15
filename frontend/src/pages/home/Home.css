@@ -628,6 +628,25 @@ body {
   border-radius: 4px;
   padding: 2px;
 }
+
+.favorite-btn {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 4px;
+  transition: transform 0.2s ease;
+  line-height: 1;
+}
+
+.favorite-btn:hover {
+  transform: scale(1.25);
+}
+
+.favorite-btn.active {
+  filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.4));
+}
+
 .product-actions-container {
   display: flex;
    flex-direction: column;

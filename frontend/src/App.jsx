@@ -5,9 +5,11 @@ import Login from './pages/login/Login'
 import Profile from './pages/profile/Profile'
 import Notifications from './pages/notifications/Notifications'
 import Register from './pages/register/Register'
+import Favorites from './pages/favorites/Favorites'
 import { CartProvider } from './context/CartContext'
 import { SearchProvider } from './context/SearchContext'
 import { AuthProvider } from './context/AuthContext'
+import { FavoritosProvider } from './context/FavoritosContext'
 
 
 function App() {
@@ -15,6 +17,7 @@ function App() {
 
 <AuthProvider>
    <SearchProvider>
+    <FavoritosProvider>
     <CartProvider>
       <BrowserRouter>
         <Routes>
@@ -24,9 +27,11 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/perfil" element={<Profile />} />
           <Route path="/notificaciones" element={<Notifications />} />
+          <Route path="/favoritos" element={<Favorites />} />
         </Routes>
       </BrowserRouter>
     </CartProvider>
+    </FavoritosProvider>
     </SearchProvider>
     </AuthProvider>
   )

@@ -1,14 +1,14 @@
 package com.baratito.server.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -30,5 +30,13 @@ public class Usuario {
 
     @NotBlank(message = "La contraseña es obligatoria")
     private String password;
+
+    @ManyToMany
+    @JoinTable(
+            name = "usuario_favoritos", // Nombre de la tabla intermedia
+            joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name = "producto_id")
+    )
+    private Set<ProductoSchema> favoritos = new HashSet<>();
 
 }

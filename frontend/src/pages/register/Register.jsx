@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import './Register.css'
 import { useAuth } from '../../context/AuthContext'
+import { postNoAuth, ApiError } from '../../api/apiClient'
+import './Register.css'
 
 function Register() {
   const [nombre, setNombre] = useState('')
@@ -14,66 +15,53 @@ function Register() {
   const { login } = useAuth()
 
   const handleSubmit = async (e) => {
-      e.preventDefault()
+    e.preventDefault()
 
-      // Validaciones
-      if (!nombre.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-        setError('Por favor, completa todos los campos')
-        return
-      }
-
-      if (password !== confirmPassword) {
-        setError('Las contraseñas no coinciden')
-        return
-      }
-
-      if (password.length < 6) {
-        setError('La contraseña debe tener al menos 6 caracteres')
-        return
-      }
-
-      setError('')
-      setLoading(true)
-
-      try {
-        const res = await fetch('http://localhost:8080/api/user/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            nombre: nombre.trim(),
-            email: email.trim(),
-            password
-          }),
-        })
-
-
-        const authHeader = res.headers.get('Authorization')
-
-        const data = await res.json()
-
-        if (!res.ok) {
-          setError(data.error || 'Ocurrió un error al registrarse')
-          return
-        }
-
-
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-          const token = authHeader.substring(7)
-          login(token, data) //
-        } else if (data.token) {
-          login(data.token, data)
-        }
-
-        navigate('/')
-      } catch (err) {
-        console.error(err) 
-        setError('No se pudo conectar con el servidor')
-      } finally {
-        setLoading(false)
-      }
+    if (!nombre.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+      setError('Por favor, completa todos los campos')
+      return
     }
+
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden')
+      return
+    }
+
+    if (password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres')
+      return
+    }
+
+    setError('')
+    setLoading(true)
+
+    try {
+      const { data, headers } = await postNoAuth('/api/user/register', {
+        nombre: nombre.trim(),
+        email: email.trim(),
+        password,
+      })
+
+      const authHeader = headers.get('Authorization')
+
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7)
+        login(token, data)
+      } else if (data.token) {
+        login(data.token, data)
+      }
+
+      navigate('/')
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message)
+      } else {
+        setError('No se pudo conectar con el servidor')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="register-container">
@@ -88,7 +76,6 @@ function Register() {
         </header>
 
         <form onSubmit={handleSubmit} className="register-form">
-          {/* Campo Nombre */}
           <div className="form-group">
             <label htmlFor="nombre">Nombre Completo</label>
             <div className={`input-wrapper ${error && !nombre ? 'input-wrapper--error' : ''}`}>
@@ -106,7 +93,6 @@ function Register() {
             </div>
           </div>
 
-          {/* Campo Email */}
           <div className="form-group">
             <label htmlFor="email">Correo Electrónico</label>
             <div className={`input-wrapper ${error && !email ? 'input-wrapper--error' : ''}`}>
@@ -124,7 +110,6 @@ function Register() {
             </div>
           </div>
 
-          {/* Campo Contraseña */}
           <div className="form-group">
             <label htmlFor="password">Contraseña</label>
             <div className={`input-wrapper ${error && !password ? 'input-wrapper--error' : ''}`}>
@@ -142,7 +127,6 @@ function Register() {
             </div>
           </div>
 
-          {/* Campo Confirmar Contraseña */}
           <div className="form-group">
             <label htmlFor="confirmPassword">Confirmar Contraseña</label>
             <div className={`input-wrapper ${error && password !== confirmPassword ? 'input-wrapper--error' : ''}`}>

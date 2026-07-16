@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useAuth } from './AuthContext'
+import { obtenerFavoritos, agregarFavorito, quitarFavorito } from '../service/favoritos/favoritoService';
 
 const FavoritosContext = createContext()
 
 export function FavoritosProvider({ children }) {
-  const { isLoggedIn, user } = useAuth()
+  const { isLoggedIn } = useAuth()
   const [favoritos, setFavoritos] = useState([])
   const [popup, setPopup] = useState(null)
 
@@ -13,23 +14,17 @@ export function FavoritosProvider({ children }) {
     setTimeout(() => setPopup(null), 1500)
   }
 
-  const getToken = () => localStorage.getItem('token')
-
   const fetchFavoritos = async () => {
     if (!isLoggedIn) {
       setFavoritos([])
       return
     }
     try {
-      const res = await fetch('http://localhost:8080/api/favoritos', {
-        headers: { Authorization: `Bearer ${getToken()}` }
-      })
-      if (res.ok) {
-        const data = await res.json()
-        setFavoritos(data)
-      }
+      const data = await obtenerFavoritos() // Asumiendo que apiFetch ya devuelve el JSON
+      setFavoritos(Array.isArray(data) ? data : [])
     } catch (err) {
       console.error('Error cargando favoritos:', err)
+      setFavoritos([])
     }
   }
 
@@ -41,33 +36,25 @@ export function FavoritosProvider({ children }) {
     return favoritos.some(f => f.id === productoId)
   }
 
-  const toggleFavorito = async (productoId, nombreProducto) => {
+  const toggleFavorito = async (producto) => {
     if (!isLoggedIn) {
       mostrarPopup('Iniciá sesión para usar favoritos', 'error')
       return
     }
 
+    const { id, nombre } = producto
+
     try {
-      if (esFavorito(productoId)) {
-        const res = await fetch(`http://localhost:8080/api/favoritos/${productoId}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${getToken()}` }
-        })
-        if (res.ok) {
-          setFavoritos(prev => prev.filter(f => f.id !== productoId))
-          mostrarPopup(`✗ ${nombreProducto} quitado de favoritos`, 'quitado')
-        }
+      if (esFavorito(id)) {
+        await quitarFavorito(id)
+        setFavoritos(prev => prev.filter(f => f.id !== id))
+        mostrarPopup(`✗ ${nombre} quitado de favoritos`, 'quitado')
       } else {
-        const res = await fetch(`http://localhost:8080/api/favoritos/${productoId}`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${getToken()}` }
-        })
-        if (res.ok) {
-          await fetchFavoritos()
-          mostrarPopup(`✓ ${nombreProducto} agregado a favoritos`, 'agregado')
-        }
+        await agregarFavorito(id)
+        setFavoritos(prev => [...prev, producto]) // Actualización instantánea
+        mostrarPopup(`✓ ${nombre} agregado a favoritos`, 'agregado')
       }
-    } catch {
+    } catch (err) {
       mostrarPopup('No se pudo actualizar favoritos', 'error')
     }
   }

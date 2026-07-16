@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { get } from '../../api/apiClient'
 import './HistorialModal.css'
 
 const RANGOS = [7, 15, 30]
@@ -69,8 +70,7 @@ export default function HistorialModal({ producto, onClose }) {
   const fetchHistorial = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch(`http://localhost:8080/api/productos/historial?link=${encodeURIComponent(producto.link)}&dias=${dias}`)
-      const raw = await res.json()
+      const { data: raw } = await get(`/api/productos/historial?link=${encodeURIComponent(producto.link)}&dias=${dias}`)
 
       const porFecha = {}
       raw.forEach(({ fecha, source, precio }) => {

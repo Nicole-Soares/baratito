@@ -60,13 +60,13 @@ function CardProducto({ producto }) {
         <div className="product-actions-container">
           <div className="product-actions-group">
             {/* Botón de favorito */}
-            <button
-              className={`favorite-btn ${favorito ? 'active' : ''}`}
-              onClick={() => toggleFavorito(producto.id, producto.nombre)}
-              title={favorito ? 'Quitar de favoritos' : 'Agregar a favoritos'}
-            >
-              {favorito ? '❤️' : '🤍'}
-            </button>
+          <button
+            className={`favorite-btn ${favorito ? 'active' : ''}`}
+            onClick={() => toggleFavorito(producto)}
+            title={favorito ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+          >
+            {favorito ? '❤️' : '🤍'}
+          </button>
 
             {/* Logo del Supermercado */}
             <img

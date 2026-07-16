@@ -2,7 +2,8 @@ import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSearch } from '../../context/SearchContext'
 import { useCart } from '../../context/CartContext'
-import {useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/AuthContext'
+import { get, ApiError } from '../../api/apiClient'
 import './Home.css'
 import CardProducto from '../../components/cardproduct/CardProduct'
 
@@ -47,18 +48,13 @@ function Home() {
     setSugerencias([])
 
     try {
-      const res = await fetch(
-        `http://localhost:8080/api/productos/buscar?nombre=${encodeURIComponent(query.trim())}`
+      const { data } = await get(
+        `/api/productos/buscar?nombre=${encodeURIComponent(query.trim())}`
       )
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data.error || 'Ocurrió un error en la búsqueda')
-        setResultados(null)
-        return
-      }
       setResultados(data)
-    } catch {
-      setError('No se pudo conectar con el servidor')
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : 'No se pudo conectar con el servidor'
+      setError(msg)
       setResultados(null)
     } finally {
       setLoading(false)
@@ -67,15 +63,11 @@ function Home() {
 
   const obtenerSugerencias = async (texto) => {
     try {
-      const res = await fetch(
-        `http://localhost:8080/api/productos/sugerencias?query=${encodeURIComponent(texto)}`
+      const { data } = await get(
+        `/api/productos/sugerencias?query=${encodeURIComponent(texto)}`
       )
-
-      const data = await res.json()
-
       setSugerencias(data)
-    } catch (error) {
-      console.error(error)
+    } catch {
       setSugerencias([])
     }
   }
@@ -154,20 +146,11 @@ function Home() {
   }
 
 const handleAgregar = async (productoId, nombreProducto) => {
-  try {
-    await fetch(`http://localhost:8080/api/carrito/${productoId}`, {
-      method: 'POST'
-    })
-    setAgregados(prev => ({ ...prev, [productoId]: true }))
-    setMensajeCarrito(`✓ ${nombreProducto} se agregó al carrito`)
-
-    setTimeout(() => {
-      setAgregados(prev => ({ ...prev, [productoId]: false }))
-      setMensajeCarrito('')
-    }, 2000) // dura 2 segundos
-  } catch {
-    setError('No se pudo agregar al carrito')
-  }
+  agregarProducto(productoId, nombreProducto)
+  setAgregados(prev => ({ ...prev, [productoId]: true }))
+  setTimeout(() => {
+    setAgregados(prev => ({ ...prev, [productoId]: false }))
+  }, 2000)
 }
 
   return (

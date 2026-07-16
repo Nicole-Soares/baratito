@@ -1,26 +1,23 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import { get, post, del, ApiError } from '../api/apiClient'
 
 const CartContext = createContext()
 
 export function CartProvider({ children }) {
   const [cart, setCart] = useState({ productos: [], total: 0 })
+  const [popup, setPopup] = useState(null)
 
-  // estado del mensaje
-  const [popup, setPopup] = useState(null) // Guardará { texto: '...', tipo: '...' }
-
-  // Función auxiliar para mostrar el cartel con tiempo de vencimiento
   const mostrarPopup = (texto, tipo) => {
     setPopup({ texto, tipo })
-    setTimeout(() => setPopup(null), 1500) // Desaparece a los 1.5 segundos
+    setTimeout(() => setPopup(null), 1500)
   }
 
   const fetchCart = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/carrito')
-      const data = await res.json()
+      const { data } = await get('/api/carrito')
       setCart(data)
     } catch (err) {
-      console.error("Error cargando carrito:", err)
+      console.error('Error cargando carrito:', err.message)
     }
   }
 
@@ -30,32 +27,25 @@ export function CartProvider({ children }) {
 
   const agregarProducto = async (productoId, nombreProducto) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/carrito/${productoId}`, { method: 'POST' })
-      const data = await res.json()
+      const { data } = await post(`/api/carrito/${productoId}`)
       setCart(data)
-
-
       mostrarPopup(`✓ ${nombreProducto} agregado`, 'agregado')
-    } catch {
-      mostrarPopup('No se pudo agregar al carrito', 'error')
+    } catch (err) {
+      mostrarPopup(err.message || 'No se pudo agregar al carrito', 'error')
     }
   }
 
   const quitarProducto = async (productoId, nombreProducto) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/carrito/${productoId}`, { method: 'DELETE' })
-      const data = await res.json()
+      const { data } = await del(`/api/carrito/${productoId}`)
       setCart(data)
-
-
       mostrarPopup(`✗ ${nombreProducto} eliminado`, 'quitado')
-    } catch {
-      mostrarPopup('No se pudo quitar del carrito', 'error')
+    } catch (err) {
+      mostrarPopup(err.message || 'No se pudo quitar del carrito', 'error')
     }
   }
 
   return (
-
     <CartContext.Provider value={{ cart, popup, agregarProducto, quitarProducto, mostrarPopup }}>
       {children}
     </CartContext.Provider>

@@ -24,7 +24,15 @@ public class FavoritoController {
 
     private Long getUsuarioId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (Long) auth.getPrincipal();
+        Object principal = auth.getPrincipal();
+
+        // Debug: Imprime esto en tu consola de servidor
+        System.out.println("Tipo de principal: " + principal.getClass().getName());
+        System.out.println("Valor de principal: " + principal.toString());
+
+        // Si tu principal es un objeto, aquí es donde suele estar el fallo.
+        // Si usas un JWT, es probable que necesites extraer el ID de otra forma.
+        return (Long) principal;
     }
 
     @GetMapping

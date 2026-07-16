@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { postNoAuth, ApiError } from '../../api/apiClient'
 import './Login.css'
 
 function Login() {
@@ -23,31 +24,16 @@ function Login() {
     setLoading(true)
 
     try {
-      const res = await fetch('http://localhost:8080/api/user/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: email.trim(), password }), // en el login no mandamos el nombre, el back no espera el nombre
+      const { data, headers } = await postNoAuth('/api/user/login', {
+        email: email.trim(),
+        password,
       })
 
-      const authHeader = res.headers.get('Authorization')
+      const authHeader = headers.get('Authorization')
 
-      let data = {}
-      const contentType = res.headers.get("content-type")
-      if (contentType && contentType.includes("application/json")) {
-        data = await res.json()
-      }
-
-      if (!res.ok) {
-        setError(data.error || 'Credenciales incorrectas')
-        return
-      }
-
-      // Procesamos la respuesta correcta
       if (authHeader && authHeader.startsWith('Bearer ')) {
         const token = authHeader.substring(7)
-        login(token, data) // Mandamos token y los datos del usuario (id, nombre, email)
+        login(token, data)
         navigate('/')
       } else if (data.token) {
         login(data.token, data)
@@ -55,10 +41,12 @@ function Login() {
       } else {
         setError('No se pudo obtener el token de autenticación')
       }
-
     } catch (err) {
-      console.error(err)
-      setError('No se pudo conectar con el servidor')
+      if (err instanceof ApiError) {
+        setError(err.message)
+      } else {
+        setError('No se pudo conectar con el servidor')
+      }
     } finally {
       setLoading(false)
     }

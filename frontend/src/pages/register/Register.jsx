@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { postNoAuth, ApiError } from '../../api/apiClient'
 import './Register.css'
 
 function Register() {
@@ -12,7 +11,7 @@ function Register() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { register } = useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -36,28 +35,15 @@ function Register() {
     setLoading(true)
 
     try {
-      const { data, headers } = await postNoAuth('/api/user/register', {
+      await register({
         nombre: nombre.trim(),
         email: email.trim(),
         password,
       })
-
-      const authHeader = headers.get('Authorization')
-
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.substring(7)
-        login(token, data)
-      } else if (data.token) {
-        login(data.token, data)
-      }
-
+      // register() del contexto ya guarda el token y setea el user
       navigate('/')
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message)
-      } else {
-        setError('No se pudo conectar con el servidor')
-      }
+      setError(err.message || 'No se pudo conectar con el servidor')
     } finally {
       setLoading(false)
     }
@@ -85,6 +71,7 @@ function Register() {
                 id="nombre"
                 placeholder="Tu nombre"
                 value={nombre}
+                disabled={loading}
                 onChange={(e) => {
                   setNombre(e.target.value)
                   if (error) setError('')
@@ -102,6 +89,7 @@ function Register() {
                 id="email"
                 placeholder="ejemplo@correo.com"
                 value={email}
+                disabled={loading}
                 onChange={(e) => {
                   setEmail(e.target.value)
                   if (error) setError('')
@@ -119,6 +107,7 @@ function Register() {
                 id="password"
                 placeholder="Mínimo 6 caracteres"
                 value={password}
+                disabled={loading}
                 onChange={(e) => {
                   setPassword(e.target.value)
                   if (error) setError('')
@@ -136,6 +125,7 @@ function Register() {
                 id="confirmPassword"
                 placeholder="Repetí tu contraseña"
                 value={confirmPassword}
+                disabled={loading}
                 onChange={(e) => {
                   setConfirmPassword(e.target.value)
                   if (error) setError('')

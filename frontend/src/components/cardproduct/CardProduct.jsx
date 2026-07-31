@@ -10,9 +10,7 @@ function CardProducto({ producto }) {
 
   const favorito = esFavorito(producto.id)
 
-  const item = cart?.productos?.find(
-    p => p.nombre === producto.nombre && p.imagen === producto.imagen
-  )
+ const item = cart?.productos?.find(p => p.productoId === producto.id)
 
   return (
     <>
@@ -81,12 +79,12 @@ function CardProducto({ producto }) {
                 <div className="quantity-controls">
                   <button onClick={() => quitarProducto(producto.id, producto.nombre)}>-</button>
                   <span className="quantity-badge">{item.cantidad}</span>
-                  <button onClick={() => agregarProducto(producto.id, producto.nombre)}>+</button>
+                  <button onClick={() => agregarProducto(producto)}>+</button>
                 </div>
               ) : (
                 <button
                   className="product-add-btn"
-                  onClick={() => agregarProducto(producto.id, producto.nombre)}
+                  onClick={() => agregarProducto(producto)}
                 >
                   +
                 </button>

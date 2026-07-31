@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { useAuth } from './AuthContext'
 import { obtenerFavoritos, agregarFavorito, quitarFavorito } from '../service/favoritos/favoritoService';
 
@@ -8,10 +8,14 @@ export function FavoritosProvider({ children }) {
   const { isLoggedIn } = useAuth()
   const [favoritos, setFavoritos] = useState([])
   const [popup, setPopup] = useState(null)
+  const popupTimeoutRef = useRef(null)
 
   const mostrarPopup = (texto, tipo) => {
+    if (popupTimeoutRef.current) {
+      clearTimeout(popupTimeoutRef.current)
+    }
     setPopup({ texto, tipo })
-    setTimeout(() => setPopup(null), 1500)
+    popupTimeoutRef.current = setTimeout(() => setPopup(null), 1500)
   }
 
   const fetchFavoritos = async () => {
@@ -20,7 +24,7 @@ export function FavoritosProvider({ children }) {
       return
     }
     try {
-      const data = await obtenerFavoritos() // Asumiendo que apiFetch ya devuelve el JSON
+      const data = await obtenerFavoritos()
       setFavoritos(Array.isArray(data) ? data : [])
     } catch (err) {
       console.error('Error cargando favoritos:', err)
@@ -51,11 +55,11 @@ export function FavoritosProvider({ children }) {
         mostrarPopup(`✗ ${nombre} quitado de favoritos`, 'quitado')
       } else {
         await agregarFavorito(id)
-        setFavoritos(prev => [...prev, producto]) // Actualización instantánea
+        setFavoritos(prev => [...prev, producto])
         mostrarPopup(`✓ ${nombre} agregado a favoritos`, 'agregado')
       }
     } catch (err) {
-      mostrarPopup('No se pudo actualizar favoritos', 'error')
+      mostrarPopup(err.message || 'No se pudo actualizar favoritos', 'error')
     }
   }
 

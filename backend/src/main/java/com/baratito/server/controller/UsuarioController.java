@@ -1,11 +1,11 @@
 package com.baratito.server.controller;
-import com.baratito.server.controller.dto.usuario.UsuarioDTO;
-import com.baratito.server.controller.dto.usuario.UsuarioLoginDTO;
+import com.baratito.server.controller.dto.usuario.*;
 import com.baratito.server.model.Usuario;
 import com.baratito.server.security.TokenService;
 import com.baratito.server.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -36,9 +36,9 @@ public class UsuarioController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registrarUsuario(@Valid @RequestBody Usuario usuario) {
+    public ResponseEntity<?> registrarUsuario(@Valid @RequestBody UsuarioRegistroDTO dto) {
 
-        Usuario nuevoUsuario = usuarioService.registrar(usuario);
+        Usuario nuevoUsuario = usuarioService.registrar(dto);
 
         //genero token
         String token = tokenService.generateToken(nuevoUsuario.getId());
@@ -63,6 +63,28 @@ public class UsuarioController {
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + token)
                 .body(respuesta);
+    }
+
+
+    @GetMapping("/me")
+    public ResponseEntity<?> obtenerPerfil(Authentication authentication) {
+        Long usuarioId = (Long) authentication.getPrincipal();
+        Usuario usuario = usuarioService.obtenerPorId(usuarioId);
+        return ResponseEntity.ok(new UsuarioDTO(usuario.getId(), usuario.getNombre(), usuario.getEmail()));
+    }
+
+    @PutMapping("/perfil")
+    public ResponseEntity<?> actualizarPerfil(@Valid @RequestBody UsuarioActualizarDTO dto, Authentication authentication) {
+        Long usuarioId = (Long) authentication.getPrincipal();
+        Usuario actualizado = usuarioService.actualizarPerfil(usuarioId, dto);
+        return ResponseEntity.ok(new UsuarioDTO(actualizado.getId(), actualizado.getNombre(), actualizado.getEmail()));
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<?> cambiarPassword(@Valid @RequestBody CambiarPasswordDTO dto, Authentication authentication) {
+        Long usuarioId = (Long) authentication.getPrincipal();
+        usuarioService.cambiarPassword(usuarioId, dto);
+        return ResponseEntity.ok(Map.of("message", "Contraseña actualizada correctamente"));
     }
 }
 

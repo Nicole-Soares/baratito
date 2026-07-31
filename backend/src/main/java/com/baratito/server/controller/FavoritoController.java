@@ -13,7 +13,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/favoritos")
-@CrossOrigin(origins = "*", exposedHeaders = "Authorization")
 public class FavoritoController {
 
     private final FavoritoService favoritoService;
@@ -22,22 +21,9 @@ public class FavoritoController {
         this.favoritoService = favoritoService;
     }
 
-    private Long getUsuarioId() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = auth.getPrincipal();
-
-        // Debug: Imprime esto en tu consola de servidor
-        System.out.println("Tipo de principal: " + principal.getClass().getName());
-        System.out.println("Valor de principal: " + principal.toString());
-
-        // Si tu principal es un objeto, aquí es donde suele estar el fallo.
-        // Si usas un JWT, es probable que necesites extraer el ID de otra forma.
-        return (Long) principal;
-    }
-
     @GetMapping
-    public ResponseEntity<List<FavoritoDTO>> obtenerFavoritos() {
-        Long usuarioId = getUsuarioId();
+    public ResponseEntity<List<FavoritoDTO>> obtenerFavoritos(Authentication authentication) {
+        Long usuarioId = (Long) authentication.getPrincipal();
         List<ProductoSchema> favoritos = favoritoService.obtenerFavoritos(usuarioId);
 
         List<FavoritoDTO> dto = favoritos.stream()
@@ -49,22 +35,22 @@ public class FavoritoController {
     }
 
     @GetMapping("/check/{productoId}")
-    public ResponseEntity<Map<String, Boolean>> esFavorito(@PathVariable Long productoId) {
-        Long usuarioId = getUsuarioId();
+    public ResponseEntity<Map<String, Boolean>> esFavorito(@PathVariable Long productoId, Authentication authentication) {
+        Long usuarioId = (Long) authentication.getPrincipal();
         boolean esFav = favoritoService.esFavorito(usuarioId, productoId);
         return ResponseEntity.ok(Map.of("esFavorito", esFav));
     }
 
     @PostMapping("/{productoId}")
-    public ResponseEntity<Map<String, String>> agregarFavorito(@PathVariable Long productoId) {
-        Long usuarioId = getUsuarioId();
+    public ResponseEntity<Map<String, String>> agregarFavorito(@PathVariable Long productoId, Authentication authentication) {
+        Long usuarioId = (Long) authentication.getPrincipal();
         favoritoService.agregarFavorito(usuarioId, productoId);
         return ResponseEntity.ok(Map.of("mensaje", "Producto agregado a favoritos"));
     }
 
     @DeleteMapping("/{productoId}")
-    public ResponseEntity<Map<String, String>> quitarFavorito(@PathVariable Long productoId) {
-        Long usuarioId = getUsuarioId();
+    public ResponseEntity<Map<String, String>> quitarFavorito(@PathVariable Long productoId, Authentication authentication) {
+        Long usuarioId = (Long) authentication.getPrincipal();
         favoritoService.quitarFavorito(usuarioId, productoId);
         return ResponseEntity.ok(Map.of("mensaje", "Producto eliminado de favoritos"));
     }

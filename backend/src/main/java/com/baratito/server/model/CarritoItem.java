@@ -14,6 +14,8 @@ public class CarritoItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // este es el id del registro en la tabla
 
+    @Column(name = "usuario_id", nullable = false)
+    private Long usuarioId; // dueño del item de carrito
 
     @Column(name = "producto_id", nullable = false)
     @com.fasterxml.jackson.annotation.JsonProperty("productoId")
@@ -25,7 +27,8 @@ public class CarritoItem {
     private String imagen;
     private int cantidad;
 
-    public CarritoItem(Long productoId, String nombre, String source, double precio, String imagen) {
+    public CarritoItem(Long usuarioId, Long productoId, String nombre, String source, double precio, String imagen) {
+        this.usuarioId = usuarioId;
         this.productoId = productoId;
         this.nombre = nombre;
         this.source = source;
@@ -42,4 +45,3 @@ public class CarritoItem {
     }
 
 }
-

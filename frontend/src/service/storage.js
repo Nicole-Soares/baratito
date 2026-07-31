@@ -10,7 +10,6 @@ const getToken = () => localStorage.getItem("token");
 
 const clearToken = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem(AVATAR_URL_KEY);
 };
 
 const getUserId = () => {
@@ -38,7 +37,7 @@ const isTokenExpired = () => {
     }
   };
 
-const Storage = {
+const storage = {
     setToken,
     getToken,
     clearToken,
@@ -47,4 +46,4 @@ const Storage = {
 
 };
 
-export default Storage;
+export default storage;

@@ -1,31 +1,39 @@
 package com.baratito.server.service;
 
+import com.baratito.server.controller.dto.usuario.CambiarPasswordDTO;
+import com.baratito.server.controller.dto.usuario.UsuarioActualizarDTO;
+import com.baratito.server.controller.dto.usuario.UsuarioRegistroDTO;
 import com.baratito.server.model.Usuario;
 import com.baratito.server.persistence.interfaces.UsuarioRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
-    private final BCryptPasswordEncoder encoder;
+    private final PasswordEncoder encoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, BCryptPasswordEncoder encoder) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder encoder) {
         this.usuarioRepository = usuarioRepository;
         this.encoder = encoder;
     }
 
-    public Usuario registrar(Usuario usuario) {
+    public Usuario registrar(UsuarioRegistroDTO dto) {
         //chequea si ese email ya es usado por otro
-        if (usuarioRepository.existsByEmail(usuario.getEmail())) {
+        if (usuarioRepository.existsByEmail(dto.getEmail())) {
             throw new IllegalArgumentException("El email ya existe");
         }
+
+        Usuario usuario = new Usuario();
+        usuario.setNombre(dto.getNombre());
+        usuario.setEmail(dto.getEmail());
         //cifra la password para que no sea un texto plano
-        usuario.setPassword(encoder.encode(usuario.getPassword()));
+        usuario.setPassword(encoder.encode(dto.getPassword()));
 
         //guarda y retorna
         return usuarioRepository.save(usuario);
+
     }
 
     public Usuario login(String email, String password) {
@@ -43,5 +51,41 @@ public class UsuarioService {
 
         //y si no retorna el usuario
         return usuario;
+    }
+
+
+    public Usuario obtenerPorId(Long id) {
+        return usuarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+    }
+
+    public Usuario actualizarPerfil(Long usuarioId, UsuarioActualizarDTO dto) {
+        Usuario usuario = obtenerPorId(usuarioId);
+
+        // confirma identidad antes de permitir el cambio
+        if (!encoder.matches(dto.getPasswordActual(), usuario.getPassword())) {
+            throw new IllegalArgumentException("Contraseña incorrecta");
+        }
+
+        // si cambia el email, hay que chequear que no choque con otro usuario
+        if (!usuario.getEmail().equals(dto.getEmail()) && usuarioRepository.existsByEmail(dto.getEmail())) {
+            throw new IllegalArgumentException("El email ya está en uso");
+        }
+
+        usuario.setNombre(dto.getNombre());
+        usuario.setEmail(dto.getEmail());
+
+        return usuarioRepository.save(usuario);
+    }
+
+    public void cambiarPassword(Long usuarioId, CambiarPasswordDTO dto) {
+        Usuario usuario = obtenerPorId(usuarioId);
+
+        if (!encoder.matches(dto.getPasswordActual(), usuario.getPassword())) {
+            throw new IllegalArgumentException("Contraseña actual incorrecta");
+        }
+
+        usuario.setPassword(encoder.encode(dto.getPasswordNueva()));
+        usuarioRepository.save(usuario);
     }
 }

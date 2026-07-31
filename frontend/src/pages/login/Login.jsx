@@ -1,7 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { postNoAuth, ApiError } from '../../api/apiClient'
 import './Login.css'
 
 function Login() {
@@ -11,6 +10,14 @@ function Login() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { login } = useAuth()
+
+  useEffect(() => {
+    const mensaje = sessionStorage.getItem('authMessage')
+    if (mensaje) {
+      setError(mensaje)
+      sessionStorage.removeItem('authMessage')
+    }
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -24,29 +31,10 @@ function Login() {
     setLoading(true)
 
     try {
-      const { data, headers } = await postNoAuth('/api/user/login', {
-        email: email.trim(),
-        password,
-      })
-
-      const authHeader = headers.get('Authorization')
-
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.substring(7)
-        login(token, data)
-        navigate('/')
-      } else if (data.token) {
-        login(data.token, data)
-        navigate('/')
-      } else {
-        setError('No se pudo obtener el token de autenticación')
-      }
+      await login(email.trim(), password)
+      navigate('/')
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message)
-      } else {
-        setError('No se pudo conectar con el servidor')
-      }
+      setError(err.message || 'No se pudo conectar con el servidor')
     } finally {
       setLoading(false)
     }
@@ -74,6 +62,8 @@ function Login() {
                 id="email"
                 placeholder="ejemplo@correo.com"
                 value={email}
+                disabled={loading}
+                aria-invalid={error && !email ? 'true' : 'false'}
                 onChange={(e) => {
                   setEmail(e.target.value)
                   if (error) setError('')
@@ -91,6 +81,8 @@ function Login() {
                 id="password"
                 placeholder="••••••••"
                 value={password}
+                disabled={loading}
+                aria-invalid={error && !password ? 'true' : 'false'}
                 onChange={(e) => {
                   setPassword(e.target.value)
                   if (error) setError('')

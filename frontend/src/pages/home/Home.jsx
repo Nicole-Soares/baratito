@@ -3,36 +3,25 @@ import { useNavigate } from 'react-router-dom'
 import { useSearch } from '../../context/SearchContext'
 import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
-import { get, ApiError } from '../../api/apiClient'
+import { buscarProductos, obtenerSugerencias as obtenerSugerenciasService } from '../../service/productoService/productoService'
+import { useNotificaciones } from '../../context/NotificacionesContext'
 import './Home.css'
 import CardProducto from '../../components/cardproduct/CardProduct'
 
 function Home() {
   const [query, setQuery] = useState('')
-  const [agregados, setAgregados] = useState({})
   const [filtrosActivos, setFiltrosActivos] = useState([])
   const [sugerencias, setSugerencias] = useState([])
-  const { cart, popup, agregarProducto, quitarProducto } = useCart()
+  const { cart, popup } = useCart()
   const { resultados, setResultados, busquedaActual, setBusquedaActual, error, setError, loading, setLoading } = useSearch()
-  const [mensajeCarrito, setMensajeCarrito] = useState('')
   const [indiceSeleccionado, setIndiceSeleccionado] = useState(-1)
   const [menuOpen, setMenuOpen] = useState(false)
   const { isLoggedIn, logout } = useAuth()
+  const { noLeidas, fetchContador } = useNotificaciones()
   const inputRef = useRef(null)
   const navigate = useNavigate()
 
-
   const totalProductos = cart.productos.reduce((acc, p) => acc + p.cantidad, 0)
-
-    const handleIncrement = async (productoId, nombreProducto) => {
-        agregarProducto(productoId, nombreProducto)
-
-    }
-
-  const handleDecrement = async (productoId, nombreProducto) => {
-        quitarProducto(productoId, nombreProducto)
-  }
-
 
   const handleSearch = async () => {
     if (!query.trim()) {
@@ -48,13 +37,11 @@ function Home() {
     setSugerencias([])
 
     try {
-      const { data } = await get(
-        `/api/productos/buscar?nombre=${encodeURIComponent(query.trim())}`
-      )
+      const data = await buscarProductos(query.trim())
       setResultados(data)
+      fetchContador() // la búsqueda pudo haber generado notificaciones nuevas
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'No se pudo conectar con el servidor'
-      setError(msg)
+      setError(err.message || 'No se pudo conectar con el servidor')
       setResultados(null)
     } finally {
       setLoading(false)
@@ -63,9 +50,7 @@ function Home() {
 
   const obtenerSugerencias = async (texto) => {
     try {
-      const { data } = await get(
-        `/api/productos/sugerencias?query=${encodeURIComponent(texto)}`
-      )
+      const data = await obtenerSugerenciasService(texto)
       setSugerencias(data)
     } catch {
       setSugerencias([])
@@ -73,67 +58,47 @@ function Home() {
   }
 
   const handleKeyDown = (e) => {
-
-    // Desplazarse con flecha para abajo
     if (e.key === 'ArrowDown') {
       e.preventDefault()
       seleccionarSiguiente()
       return
     }
 
-    // Desplazarse con flecha para arriba
     if (e.key === 'ArrowUp' && sugerencias.length > 0) {
       e.preventDefault()
-
-      const nuevoIndice =
-        indiceSeleccionado > 0
-          ? indiceSeleccionado - 1
-          : 0
-
+      const nuevoIndice = indiceSeleccionado > 0 ? indiceSeleccionado - 1 : 0
       setIndiceSeleccionado(nuevoIndice)
       setQuery(sugerencias[nuevoIndice])
-
       return
     }
 
-    // Rellenar con tab
     if (e.key === 'Tab') {
       e.preventDefault()
       seleccionarSiguiente()
       return
     }
 
-    // Buscar con enter
     if (e.key === 'Enter') {
-
       if (indiceSeleccionado >= 0) {
         setQuery(sugerencias[indiceSeleccionado])
         setSugerencias([])
         setIndiceSeleccionado(-1)
         return
       }
-
       handleSearch()
     }
   }
 
   const seleccionarSiguiente = () => {
     if (sugerencias.length === 0) return
-
-    const nuevoIndice =
-      indiceSeleccionado < sugerencias.length - 1
-        ? indiceSeleccionado + 1
-        : indiceSeleccionado
-
+    const nuevoIndice = indiceSeleccionado < sugerencias.length - 1 ? indiceSeleccionado + 1 : indiceSeleccionado
     setIndiceSeleccionado(nuevoIndice)
     setQuery(sugerencias[nuevoIndice])
   }
 
   const handleInputChange = (e) => {
     const texto = e.target.value
-
     setQuery(texto)
-
     if (error) setError('')
 
     if (texto.trim().length >= 2) {
@@ -145,60 +110,56 @@ function Home() {
     }
   }
 
-const handleAgregar = async (productoId, nombreProducto) => {
-  agregarProducto(productoId, nombreProducto)
-  setAgregados(prev => ({ ...prev, [productoId]: true }))
-  setTimeout(() => {
-    setAgregados(prev => ({ ...prev, [productoId]: false }))
-  }, 2000)
-}
-
   return (
     <div className="app">
-   {popup && (
-           <div className={`popup-carrito ${popup.tipo}`}>
-             {popup.texto}
-           </div>
-         )}
-    <header className="app-header">
-      <div className="branding">
-        <h1 className="app-logo">Baratito</h1>
-        <p className="app-subtitle">Compará precios entre supermercados</p>
-      </div>
-     <div className="header-actions">
-       {isLoggedIn ? (
-         <div className="user-menu">
-           <button
-             className={`hamburger-btn ${menuOpen ? 'open' : ''}`}
-             onClick={() => setMenuOpen(!menuOpen)}
-             aria-label="Menú de usuario"
-           >
-             <span className="hamburger-line"></span>
-             <span className="hamburger-line"></span>
-             <span className="hamburger-line"></span>
-           </button>
+      {popup && (
+        <div className={`popup-carrito ${popup.tipo}`}>
+          {popup.texto}
+        </div>
+      )}
+      <header className="app-header">
+        <div className="branding">
+          <h1 className="app-logo">Baratito</h1>
+          <p className="app-subtitle">Compará precios entre supermercados</p>
+        </div>
+        <div className="header-actions">
+          {isLoggedIn ? (
+            <div className="user-menu">
+              <button
+                className={`hamburger-btn ${menuOpen ? 'open' : ''}`}
+                onClick={() => setMenuOpen(!menuOpen)}
+                aria-label="Menú de usuario"
+              >
+                <span className="hamburger-line"></span>
+                <span className="hamburger-line"></span>
+                <span className="hamburger-line"></span>
+                {noLeidas > 0 && <span className="cart-badge hamburger-badge">{noLeidas}</span>}
+              </button>
 
-            {menuOpen && (
-              <div className="dropdown-menu">
-                <button onClick={() => { navigate("/perfil"); setMenuOpen(false); }}>👤 Perfil</button>
-                <button onClick={() => { navigate("/favoritos"); setMenuOpen(false); }}>❤️ Favoritos</button>
-                <button onClick={() => { navigate("/notificaciones"); setMenuOpen(false); }}>🔔 Notificaciones</button>
-                <button onClick={() => { logout(); setMenuOpen(false); }}>🚪 Cerrar sesión</button>
-              </div>
-            )}
-         </div>
-       ) : (
-         <button className="auth-button" onClick={() => navigate("/login")}>
-           👤 Ingresar
-         </button>
-       )}
+              {menuOpen && (
+                <div className="dropdown-menu">
+                  <button onClick={() => { navigate("/perfil"); setMenuOpen(false); }}>👤 Perfil</button>
+                  <button onClick={() => { navigate("/favoritos"); setMenuOpen(false); }}>❤️ Favoritos</button>
+                  <button onClick={() => { navigate("/notificaciones"); setMenuOpen(false); }}>
+                    🔔 Notificaciones
+                    {noLeidas > 0 && <span className="cart-badge">{noLeidas}</span>}
+                  </button>
+                  <button onClick={() => { logout(); setMenuOpen(false); }}>🚪 Cerrar sesión</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button className="auth-button" onClick={() => navigate("/login")}>
+              👤 Ingresar
+            </button>
+          )}
 
-       <button className="cart-button" onClick={() => navigate("/carrito")}>
-         🛒 Carrito
-         {totalProductos > 0 && <span className="cart-badge">{totalProductos}</span>}
-       </button>
-     </div>
-    </header>
+          <button className="cart-button" onClick={() => navigate("/carrito")}>
+            🛒 Carrito
+            {totalProductos > 0 && <span className="cart-badge">{totalProductos}</span>}
+          </button>
+        </div>
+      </header>
       <main className="app-main">
         <div className="search-section">
           <div className={`search-bar ${error ? 'search-bar--error' : ''}`}>
@@ -221,9 +182,7 @@ const handleAgregar = async (productoId, nombreProducto) => {
               {sugerencias.map((sugerencia, index) => (
                 <li
                   key={sugerencia}
-                  className={`suggestion-item ${
-                    indiceSeleccionado === index ? 'selected' : ''
-                  }`}
+                  className={`suggestion-item ${indiceSeleccionado === index ? 'selected' : ''}`}
                   onClick={() => {
                     setQuery(sugerencia)
                     setSugerencias([])
@@ -250,7 +209,6 @@ const handleAgregar = async (productoId, nombreProducto) => {
           <div className="results-section">
             {(() => {
               const disponibles = resultados.resultados.filter(p => p.disponibilidad)
-
               const supermercados = [...new Set(disponibles.map(p => p.source))]
 
               const toggleFiltro = (source) => {
@@ -298,7 +256,6 @@ const handleAgregar = async (productoId, nombreProducto) => {
                       <CardProducto
                         key={producto.id}
                         producto={producto}
-                        cart={cart}
                       />
                     ))}
                   </ul>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import './Login.css'
@@ -10,6 +10,14 @@ function Login() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { login } = useAuth()
+
+  useEffect(() => {
+    const mensaje = sessionStorage.getItem('authMessage')
+    if (mensaje) {
+      setError(mensaje)
+      sessionStorage.removeItem('authMessage')
+    }
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -23,42 +31,10 @@ function Login() {
     setLoading(true)
 
     try {
-      const res = await fetch('http://localhost:8080/api/user/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: email.trim(), password }), // en el login no mandamos el nombre, el back no espera el nombre
-      })
-
-      const authHeader = res.headers.get('Authorization')
-
-      let data = {}
-      const contentType = res.headers.get("content-type")
-      if (contentType && contentType.includes("application/json")) {
-        data = await res.json()
-      }
-
-      if (!res.ok) {
-        setError(data.error || 'Credenciales incorrectas')
-        return
-      }
-
-      // Procesamos la respuesta correcta
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.substring(7)
-        login(token, data) // Mandamos token y los datos del usuario (id, nombre, email)
-        navigate('/')
-      } else if (data.token) {
-        login(data.token, data)
-        navigate('/')
-      } else {
-        setError('No se pudo obtener el token de autenticación')
-      }
-
+      await login(email.trim(), password)
+      navigate('/')
     } catch (err) {
-      console.error(err)
-      setError('No se pudo conectar con el servidor')
+      setError(err.message || 'No se pudo conectar con el servidor')
     } finally {
       setLoading(false)
     }
@@ -86,6 +62,8 @@ function Login() {
                 id="email"
                 placeholder="ejemplo@correo.com"
                 value={email}
+                disabled={loading}
+                aria-invalid={error && !email ? 'true' : 'false'}
                 onChange={(e) => {
                   setEmail(e.target.value)
                   if (error) setError('')
@@ -103,6 +81,8 @@ function Login() {
                 id="password"
                 placeholder="••••••••"
                 value={password}
+                disabled={loading}
+                aria-invalid={error && !password ? 'true' : 'false'}
                 onChange={(e) => {
                   setPassword(e.target.value)
                   if (error) setError('')

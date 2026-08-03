@@ -18,4 +18,8 @@ public interface CarritoRepository {
     void deleteAll();
 
     Optional<CarritoItem> findByProductoId(Long productoId);
+
+    Optional<CarritoItem> findByUsuarioIdAndProductoId(Long usuarioId, Long productoId);
+
+    List<CarritoItem> findByUsuarioId(Long usuarioId);
 }

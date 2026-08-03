@@ -12,33 +12,46 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Manejo de errores de validación
+    // Manejo de errores de validación (@Valid: @NotBlank, @Email, @Size, etc.)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errores = new HashMap<>();
+        String primerMensaje = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .findFirst()
+                .map(error -> error.getDefaultMessage())
+                .orElse("Datos inválidos");
 
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errores.put(error.getField(), error.getDefaultMessage())
-        );
+        Map<String, String> body = new HashMap<>();
+        body.put("message", primerMensaje);
 
-        return new ResponseEntity<>(errores, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     // Manejo de errores de negocio (ejemplo: email ya registrado)
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleBusinessExceptions(IllegalArgumentException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", ex.getMessage());
+        Map<String, String> body = new HashMap<>();
+        body.put("message", ex.getMessage());
 
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    // Manejo genérico de cualquier otra excepción
+    // Manejo de errores de negocio genéricos (RuntimeException que no sean IllegalArgumentException)
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, String>> handleRuntimeExceptions(RuntimeException ex) {
+        Map<String, String> body = new HashMap<>();
+        body.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    // Manejo genérico de cualquier otra excepción no controlada
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGeneralExceptions(Exception ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", "Ocurrió un error inesperado: " + ex.getMessage());
+        Map<String, String> body = new HashMap<>();
+        body.put("message", "Ocurrió un error inesperado");
 
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

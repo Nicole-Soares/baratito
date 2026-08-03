@@ -10,7 +10,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
-//Este filtro intercepta cada request y valida el token
+//Intercepta antes de que llegue al controller y chequea si hay token, si es el adecuado
+//si no hay token, fue alterado o expiero, tira un 401 Unauthorized (preguntandole a TokenService)
+//si hay token y es válido, crea un UsernamePasswordAuthenticationToken que es como una tarjeta para identificar al usuario
+// que esta haciendo la petición
+//lo guarda en SecurityContextHolder que es donde se guardan las autorizaciones
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -31,7 +35,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
 
-            System.out.println("JwtAuthenticationFilter ejecutado, header=" + header);
 
             try {
                 Long userId = tokenService.validateToken(token);

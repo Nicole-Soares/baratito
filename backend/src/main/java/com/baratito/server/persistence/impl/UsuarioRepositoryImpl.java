@@ -5,6 +5,8 @@ import com.baratito.server.persistence.interfaces.UsuarioRepository;
 import com.baratito.server.persistence.sql.UsuarioSQLDAO;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 
 @Repository
 public class UsuarioRepositoryImpl implements UsuarioRepository {
@@ -28,6 +30,11 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
     @Override
     public Usuario findByEmail(String email) {
         return this.usuarioSQLDAO.findByEmail(email);
+    }
+
+    @Override
+    public Optional<Usuario> findById(Long id) {
+        return this.usuarioSQLDAO.findById(id);
     }
 
 }

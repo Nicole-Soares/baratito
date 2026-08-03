@@ -21,29 +21,27 @@ public class CarritoService {
         this.productoSQLDAO = productoSQLDAO;
     }
 
-    public List<CarritoItem> getItems() {
-        return carritoRepository.findAll();
+    public List<CarritoItem> getItems(Long usuarioId) {
+        return carritoRepository.findByUsuarioId(usuarioId);
     }
 
-    public double getTotal() {
-        return carritoRepository.findAll().stream()
+    public double getTotal(Long usuarioId) {
+        return carritoRepository.findByUsuarioId(usuarioId).stream()
                 .mapToDouble(i -> i.getPrecio() * i.getCantidad())
                 .sum();
     }
 
-    public void agregar(Long productoId) {
-        //  Buscamos usando findByProductoId, NO findById, para poder ver si el producto ya existe (no es lo mismo el id de la fila que del producto)
-        CarritoItem item = carritoRepository.findByProductoId(productoId).orElse(null);
+    public void agregar(Long usuarioId, Long productoId) {
+        CarritoItem item = carritoRepository.findByUsuarioIdAndProductoId(usuarioId, productoId).orElse(null);
 
         if (item != null) {
-            // Si ya existe en el carrito, incrementamos la cantidad del mismo registro
             item.setCantidad(item.getCantidad() + 1);
             carritoRepository.save(item);
         } else {
-            // Si no existe, buscamos el producto real en el DAO y creamos un registro nuevo
             ProductoSchema p = productoSQLDAO.findById(productoId)
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + productoId));
             carritoRepository.save(new CarritoItem(
+                    usuarioId,
                     p.getId(),
                     p.getNombre(),
                     p.getSource(),
@@ -53,11 +51,8 @@ public class CarritoService {
         }
     }
 
-
-
-    public void decrementar(Long productoId) { //
-        // Buscamos por producto_id, no por la clave primaria de la tabla
-        CarritoItem item = carritoRepository.findByProductoId(productoId)
+    public void decrementar(Long usuarioId, Long productoId) {
+        CarritoItem item = carritoRepository.findByUsuarioIdAndProductoId(usuarioId, productoId)
                 .orElseThrow(() -> new RuntimeException("Item no encontrado"));
 
         int nuevaCantidad = item.getCantidad() - 1;
@@ -69,5 +64,4 @@ public class CarritoService {
             carritoRepository.save(item);
         }
     }
-
 }

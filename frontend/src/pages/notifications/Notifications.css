@@ -1,99 +1,164 @@
 .notifications-container {
   min-height: 100vh;
-  background: #07070d;
-  padding: 50px 20px;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  background: #0a0a0f;
+  color: #f5f5f7;
+  padding: 40px 24px;
 }
 
 .notifications-header {
-  width: 100%;
-  max-width: 550px;
-  margin-bottom: 24px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  max-width: 640px;
+  margin: 0 auto 32px;
 }
 
 .notifications-title {
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-size: 1.75rem;
+  font-weight: 800;
   margin: 0;
+}
+
+.back-button {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.back-button:hover {
+  filter: brightness(1.1);
 }
 
 .notifications-list {
+  max-width: 640px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: 100%;
-  max-width: 550px;
-}
-
-.notification-card {
-  background: #121220;
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 1px solid #1f1f33;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.notification-card:hover {
-  border-color: #3b3b54;
-  background: #161626;
-}
-
-.notification-card.unread {
-  border-color: rgba(124, 92, 252, 0.4);
-  background: #151529;
-}
-
-.notification-content {
-  flex: 1;
-}
-
-.notification-top-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.notification-top-row h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.notification-time {
-  font-size: 0.8rem;
-  color: #888899;
-}
-
-.notification-content p {
-  margin: 0;
-  font-size: 0.9rem;
-  color: #cfcfe6;
-  line-height: 1.4;
-}
-
-.unread-dot {
-  width: 8px;
-  height: 8px;
-  background: #7c5cfc;
-  border-radius: 50%;
-  margin-left: 12px;
-  flex-shrink: 0;
 }
 
 .empty-notifications {
   text-align: center;
-  padding: 40px;
-  color: #b7b7c9;
+  padding: 60px 24px;
+  background: #14141c;
+  border: 1px solid #262633;
+  border-radius: 16px;
+}
+
+.empty-notifications-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.empty-notifications h2 {
+  font-size: 1.2rem;
+  margin: 0 0 8px;
+}
+
+.empty-notifications p {
+  color: #a0a0b8;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.notification-card {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  background: #14141c;
+  border: 1px solid #262633;
+  border-radius: 14px;
+  padding: 16px;
+  position: relative;
+}
+
+.notification-card.no-leida {
+  border-color: #7c3aed;
+  background: #191420;
+}
+
+.notification-card.no-leida::before {
+  content: '';
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #a855f7;
+}
+
+.notification-img {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  background: #fff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.notification-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.notification-img-placeholder {
+  font-size: 1.5rem;
+}
+
+.notification-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-info h3 {
+  font-size: 0.95rem;
+  margin: 0 0 6px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notification-precio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+  font-size: 0.9rem;
+}
+
+.precio-anterior {
+  color: #6b6b80;
+  text-decoration: line-through;
+}
+
+.precio-nuevo {
+  color: #4ade80;
+  font-weight: 700;
+}
+
+.notification-descuento {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.notification-fecha {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #6b6b80;
 }

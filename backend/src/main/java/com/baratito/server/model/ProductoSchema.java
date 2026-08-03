@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -45,6 +47,10 @@ public class ProductoSchema {
     @Column(name = "actualizado")
     private LocalDate actualizado;
 
+    // Opcional: para ver desde el producto qué usuarios lo tienen como favorito
+    @ManyToMany(mappedBy = "favoritos")
+    private Set<Usuario> usuariosQueLoTienenFavorito;
+
     public ProductoSchema(String source, String nombre, String link, String imagen, boolean disponibilidad, double precio, double precioLista, LocalDate actualizado) {
         this.source = source;
         this.nombre = nombre;
@@ -54,6 +60,7 @@ public class ProductoSchema {
         this.precio = precio;
         this.precioLista = precioLista;
         this.actualizado = actualizado;
+        this.usuariosQueLoTienenFavorito = new HashSet<>();
     }
 
 }

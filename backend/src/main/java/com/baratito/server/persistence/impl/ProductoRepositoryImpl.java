@@ -5,6 +5,7 @@ import com.baratito.server.model.ProductoSchema;
 import com.baratito.server.persistence.interfaces.ProductoRepository;
 import com.baratito.server.persistence.sql.PrecioHistoricoSQLDAO;
 import com.baratito.server.persistence.sql.ProductoSQLDAO;
+import com.baratito.server.service.NotificacionService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -20,11 +21,13 @@ public class ProductoRepositoryImpl implements ProductoRepository {
 
     private final ProductoSQLDAO productoSQLDAO;
     private final PrecioHistoricoSQLDAO precioHistoricoSQLDAO;
+    private final NotificacionService notificacionService;
 
     public ProductoRepositoryImpl(ProductoSQLDAO productoSQLDAO,
-                                  PrecioHistoricoSQLDAO precioHistoricoSQLDAO) {
+                                  PrecioHistoricoSQLDAO precioHistoricoSQLDAO, NotificacionService notificacionService) {
         this.productoSQLDAO = productoSQLDAO;
         this.precioHistoricoSQLDAO = precioHistoricoSQLDAO;
+        this.notificacionService = notificacionService;
     }
 
     @Override
@@ -66,12 +69,17 @@ public class ProductoRepositoryImpl implements ProductoRepository {
             // Buscamos por el link cada producto (ID único del producto en la web)
             productoSQLDAO.findByLink(p.getLink()).ifPresentOrElse(
                     existente -> {
+                        double precioAnterior = existente.getPrecio();
                         // Si existe: Actualizamos
                         existente.setPrecio(p.getPrecio());
                         existente.setPrecioLista(p.getPrecioLista());
                         existente.setDisponibilidad(p.isDisponibilidad());
                         existente.setActualizado(p.getActualizado());
                         productoSQLDAO.save(existente);
+
+                        if (p.getPrecio() < precioAnterior) {
+                            notificacionService.notificarBajadaDePrecio(existente, precioAnterior, p.getPrecio());
+                        }
                     },
                     () -> {
                         // Si es nuevo: Lo creamos

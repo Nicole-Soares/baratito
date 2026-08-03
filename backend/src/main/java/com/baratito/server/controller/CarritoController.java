@@ -2,13 +2,13 @@ package com.baratito.server.controller;
 
 import com.baratito.server.service.CarritoService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/carrito")
-@CrossOrigin(origins = "*", exposedHeaders = "Authorization")
 public class CarritoController {
 
     private final CarritoService carritoService;
@@ -18,35 +18,31 @@ public class CarritoController {
     }
 
     @GetMapping
-    public ResponseEntity<?> obtenerCarrito() {
+    public ResponseEntity<?> obtenerCarrito(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
         return ResponseEntity.ok(Map.of(
-                "productos", carritoService.getItems(),
-                "total", carritoService.getTotal()
+                "productos", carritoService.getItems(userId),
+                "total", carritoService.getTotal(userId)
         ));
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<?> agregar(@PathVariable Long id) {
-        try {
-            carritoService.agregar(id);
-            return ResponseEntity.ok(Map.of(
-                    "productos", carritoService.getItems(),
-                    "total", carritoService.getTotal()
-            ));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> decrementar(@PathVariable Long id) {
-        carritoService.decrementar(id);
+    public ResponseEntity<?> agregar(@PathVariable Long id, Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        carritoService.agregar(userId, id);
         return ResponseEntity.ok(Map.of(
-                "productos", carritoService.getItems(),
-                "total", carritoService.getTotal()
+                "productos", carritoService.getItems(userId),
+                "total", carritoService.getTotal(userId)
         ));
     }
 
-
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> decrementar(@PathVariable Long id, Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        carritoService.decrementar(userId, id);
+        return ResponseEntity.ok(Map.of(
+                "productos", carritoService.getItems(userId),
+                "total", carritoService.getTotal(userId)
+        ));
+    }
 }

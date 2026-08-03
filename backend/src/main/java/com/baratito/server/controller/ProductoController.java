@@ -1,6 +1,6 @@
 package com.baratito.server.controller;
 
-import com.baratito.server.model.PrecioHistorico;
+import com.baratito.server.controller.dto.producto.ProductoDTO;
 import com.baratito.server.model.ProductoSchema;
 import com.baratito.server.service.ProductoService;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +11,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/productos")
-@CrossOrigin(origins = "*", exposedHeaders = "Authorization")
 public class ProductoController {
 
     private final ProductoService productoService;
@@ -31,10 +30,13 @@ public class ProductoController {
         if (nombre == null || nombre.trim().isEmpty()) {
             return ResponseEntity
                     .badRequest()
-                    .body(Map.of("error", "Ingrese un producto"));
+                    .body(Map.of("message", "Ingrese un producto"));
         }
 
-        List<ProductoSchema> resultados = productoService.buscarProductos(nombre.trim());
+        List<ProductoDTO> resultados = productoService.buscarProductos(nombre.trim())
+                .stream()
+                .map(ProductoDTO::new)
+                .toList();
 
         return ResponseEntity.ok(Map.of(
                 "resultados", resultados,
@@ -56,11 +58,16 @@ public class ProductoController {
         if (nombre == null || nombre.trim().isEmpty()) {
             return ResponseEntity
                     .badRequest()
-                    .body(Map.of("error", "Ingrese un producto"));
+                    .body(Map.of("message", "Ingrese un producto"));
         }
 
-        Map<String, List<ProductoSchema>> resultados =
-                productoService.buscarProductosAgrupados(nombre.trim());
+        Map<String, List<ProductoDTO>> resultados = productoService.buscarProductosAgrupados(nombre.trim())
+                .entrySet()
+                .stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream().map(ProductoDTO::new).toList()
+                ));
 
         return ResponseEntity.ok(resultados);
     }
@@ -78,11 +85,13 @@ public class ProductoController {
         if (nombre == null || nombre.trim().isEmpty()) {
             return ResponseEntity
                     .badRequest()
-                    .body(Map.of("error", "Ingrese un producto"));
+                    .body(Map.of("message", "Ingrese un producto"));
         }
 
-        List<ProductoSchema> resultados =
-                productoService.buscarEnSupermercado(nombre.trim(), supermercado);
+        List<ProductoDTO> resultados = productoService.buscarEnSupermercado(nombre.trim(), supermercado)
+                .stream()
+                .map(ProductoDTO::new)
+                .toList();
 
         return ResponseEntity.ok(Map.of(
                 "resultados",    resultados,
@@ -111,13 +120,16 @@ public class ProductoController {
      * GET /api/productos/historial?link={link}&dias={dias}
      *
      * Devuelve el historial de precios de un producto específico.
-     *
      */
     @GetMapping("/historial")
-    public ResponseEntity<List<PrecioHistorico>> obtenerHistorial(
-            @RequestParam String link,
+    public ResponseEntity<?> obtenerHistorial(
+            @RequestParam(required = true) String link,
             @RequestParam(defaultValue = "30") int dias
     ) {
+        if (link == null || link.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Link inválido"));
+        }
+
         return ResponseEntity.ok(productoService.obtenerHistorialPrecios(link, dias));
     }
 }

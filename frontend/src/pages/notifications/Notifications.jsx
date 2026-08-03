@@ -1,35 +1,27 @@
-import { useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useNotificaciones } from '../../context/NotificacionesContext'
 import './Notifications.css'
+
+function formatearFecha(fechaISO) {
+  const fecha = new Date(fechaISO)
+  return fecha.toLocaleDateString('es-AR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
 
 function Notifications() {
   const navigate = useNavigate()
+  const { notificaciones, fetchNotificaciones, marcarComoLeidas } = useNotificaciones()
 
-  // Lista mockeada de alertas lógicas para Baratito
-  const [notificaciones, setNotificaciones] = useState([
-    {
-      id: 1,
-      tipo: 'baja_precio',
-      titulo: '📉 ¡Bajó de precio!',
-      mensaje: 'La Yerba Mate Chamigo 500 Gr bajó un 10% en diaonline.',
-      fecha: 'Hace 10 min',
-      leida: false
-    },
-    {
-      id: 2,
-      tipo: 'stock',
-      titulo: '⚠️ Alerta de Stock',
-      mensaje: 'Pocas unidades disponibles del producto que guardaste.',
-      fecha: 'Hace 2 horas',
-      leida: true
-    }
-  ])
-
-  const marcarComoLeida = (id) => {
-    setNotificaciones(prev =>
-      prev.map(notif => notif.id === id ? { ...notif, leida: true } : notif)
-    )
-  }
+  useEffect(() => {
+    fetchNotificaciones()
+    marcarComoLeidas()
+  }, [])
 
   return (
     <div className="notifications-container">
@@ -43,25 +35,42 @@ function Notifications() {
       <div className="notifications-list">
         {notificaciones.length === 0 ? (
           <div className="empty-notifications">
-            <p>No tenés ninguna notificación por ahora.</p>
+            <span className="empty-notifications-icon">🔔</span>
+            <h2>No tenés notificaciones</h2>
+            <p>Te vamos a avisar cuando bajen de precio los productos que marcaste como favoritos</p>
           </div>
         ) : (
-          notificaciones.map(notif => (
-            <div
-              key={notif.id}
-              className={`notification-card ${!notif.leida ? 'unread' : ''}`}
-              onClick={() => marcarComoLeida(notif.id)}
-            >
-              <div className="notification-content">
-                <div className="notification-top-row">
-                  <h3>{notif.titulo}</h3>
-                  <span className="notification-time">{notif.fecha}</span>
+          notificaciones.map((noti) => {
+            const descuento = Math.round(
+              ((noti.precioAnterior - noti.precioNuevo) / noti.precioAnterior) * 100
+            )
+
+            return (
+              <div key={noti.id} className={`notification-card ${!noti.leida ? 'no-leida' : ''}`}>
+                <div className="notification-img">
+                  {noti.productoImagen ? (
+                    <img src={noti.productoImagen} alt={noti.productoNombre} />
+                  ) : (
+                    <span className="notification-img-placeholder">🛒</span>
+                  )}
                 </div>
-                <p>{notif.mensaje}</p>
+
+                <div className="notification-info">
+                  <h3>{noti.productoNombre}</h3>
+                  <p className="notification-precio">
+                    <span className="precio-anterior">
+                      ${noti.precioAnterior.toLocaleString('es-AR')}
+                    </span>
+                    <span className="precio-nuevo">
+                      ${noti.precioNuevo.toLocaleString('es-AR')}
+                    </span>
+                    <span className="notification-descuento">-{descuento}%</span>
+                  </p>
+                  <p className="notification-fecha">{formatearFecha(noti.creada)}</p>
+                </div>
               </div>
-              {!notif.leida && <span className="unread-dot"></span>}
-            </div>
-          ))
+            )
+          })
         )}
       </div>
     </div>

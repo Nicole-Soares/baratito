@@ -7,4 +7,8 @@ import java.util.Optional;
 
 public interface CarritoSQLDAO extends JpaRepository<CarritoItem, Long> {
     Optional<CarritoItem> findByProductoId(Long productoId);
+
+    Optional<CarritoItem> findByUsuarioIdAndProductoId(Long usuarioId, Long productoId);
+
+    List<CarritoItem> findByUsuarioId(Long usuarioId);
 }

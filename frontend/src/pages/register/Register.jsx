@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import './Register.css'
 import { useAuth } from '../../context/AuthContext'
+import './Register.css'
 
 function Register() {
   const [nombre, setNombre] = useState('')
@@ -11,69 +11,43 @@ function Register() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { register } = useAuth()
 
   const handleSubmit = async (e) => {
-      e.preventDefault()
+    e.preventDefault()
 
-      // Validaciones
-      if (!nombre.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-        setError('Por favor, completa todos los campos')
-        return
-      }
-
-      if (password !== confirmPassword) {
-        setError('Las contraseñas no coinciden')
-        return
-      }
-
-      if (password.length < 6) {
-        setError('La contraseña debe tener al menos 6 caracteres')
-        return
-      }
-
-      setError('')
-      setLoading(true)
-
-      try {
-        const res = await fetch('http://localhost:8080/api/user/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            nombre: nombre.trim(),
-            email: email.trim(),
-            password
-          }),
-        })
-
-
-        const authHeader = res.headers.get('Authorization')
-
-        const data = await res.json()
-
-        if (!res.ok) {
-          setError(data.error || 'Ocurrió un error al registrarse')
-          return
-        }
-
-
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-          const token = authHeader.substring(7)
-          login(token, data) //
-        } else if (data.token) {
-          login(data.token, data)
-        }
-
-        navigate('/')
-      } catch (err) {
-        console.error(err) 
-        setError('No se pudo conectar con el servidor')
-      } finally {
-        setLoading(false)
-      }
+    if (!nombre.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+      setError('Por favor, completa todos los campos')
+      return
     }
+
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden')
+      return
+    }
+
+    if (password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres')
+      return
+    }
+
+    setError('')
+    setLoading(true)
+
+    try {
+      await register({
+        nombre: nombre.trim(),
+        email: email.trim(),
+        password,
+      })
+      // register() del contexto ya guarda el token y setea el user
+      navigate('/')
+    } catch (err) {
+      setError(err.message || 'No se pudo conectar con el servidor')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="register-container">
@@ -88,7 +62,6 @@ function Register() {
         </header>
 
         <form onSubmit={handleSubmit} className="register-form">
-          {/* Campo Nombre */}
           <div className="form-group">
             <label htmlFor="nombre">Nombre Completo</label>
             <div className={`input-wrapper ${error && !nombre ? 'input-wrapper--error' : ''}`}>
@@ -98,6 +71,7 @@ function Register() {
                 id="nombre"
                 placeholder="Tu nombre"
                 value={nombre}
+                disabled={loading}
                 onChange={(e) => {
                   setNombre(e.target.value)
                   if (error) setError('')
@@ -106,7 +80,6 @@ function Register() {
             </div>
           </div>
 
-          {/* Campo Email */}
           <div className="form-group">
             <label htmlFor="email">Correo Electrónico</label>
             <div className={`input-wrapper ${error && !email ? 'input-wrapper--error' : ''}`}>
@@ -116,6 +89,7 @@ function Register() {
                 id="email"
                 placeholder="ejemplo@correo.com"
                 value={email}
+                disabled={loading}
                 onChange={(e) => {
                   setEmail(e.target.value)
                   if (error) setError('')
@@ -124,7 +98,6 @@ function Register() {
             </div>
           </div>
 
-          {/* Campo Contraseña */}
           <div className="form-group">
             <label htmlFor="password">Contraseña</label>
             <div className={`input-wrapper ${error && !password ? 'input-wrapper--error' : ''}`}>
@@ -134,6 +107,7 @@ function Register() {
                 id="password"
                 placeholder="Mínimo 6 caracteres"
                 value={password}
+                disabled={loading}
                 onChange={(e) => {
                   setPassword(e.target.value)
                   if (error) setError('')
@@ -142,7 +116,6 @@ function Register() {
             </div>
           </div>
 
-          {/* Campo Confirmar Contraseña */}
           <div className="form-group">
             <label htmlFor="confirmPassword">Confirmar Contraseña</label>
             <div className={`input-wrapper ${error && password !== confirmPassword ? 'input-wrapper--error' : ''}`}>
@@ -152,6 +125,7 @@ function Register() {
                 id="confirmPassword"
                 placeholder="Repetí tu contraseña"
                 value={confirmPassword}
+                disabled={loading}
                 onChange={(e) => {
                   setConfirmPassword(e.target.value)
                   if (error) setError('')

@@ -29,6 +29,10 @@ El proyecto está dividido en una arquitectura desacoplada (Frontend y Backend) 
 ### Infraestructura
 - **Contenerización:** Docker y Docker Compose (para un despliegue rápido y consistente en cualquier entorno).
 
+### Deploy
+- **Frontend:** Vercel
+- **Backend:** Render
+- **Base de datos:** Render
 ---
 
 ## 📦 Requisitos Previos

@@ -57,8 +57,7 @@ Con docker compose up --build, Docker lee los archivos de configuración (llamad
  
 3. **Acceder a la aplicación:**
 
-- **Frontend (Web):** Entrá a http://localhost:5173 (o el puerto que hayas configurado en Vite).
+- **web:** https://baratito-sage.vercel.app/
 
-- **Backend (API):** http://localhost:8080
+- **Con el usuario:** usuario@gmail.com  / password: 123456
 
-- **Base de Datos:** PostgreSQL corriendo en el puerto 5432.

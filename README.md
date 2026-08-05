@@ -119,11 +119,3 @@ Con `docker compose up --build`, Docker lee los archivos `Dockerfile` dentro de 
     - Backend: [http://localhost:8080](http://localhost:8080)
 
 ---
-
-## 📬 Contacto
-
-¿Te interesó el proyecto o querés charlar sobre alguna decisión técnica? Escribime:
-
-- **LinkedIn:** [tu-linkedin]
-- **Email:** [tu-email]
-- **GitHub:** [@Nicole-Soares](https://github.com/Nicole-Soares)

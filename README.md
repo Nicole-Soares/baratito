@@ -39,7 +39,7 @@
 - Contraseña: `123456`
 
 > ⚠️ El backend corre en el plan gratuito de Render. Si nadie usó la app en los últimos 15 minutos, el servidor se "duerme" y el primer request puede tardar hasta un minuto en responder mientras vuelve a levantar. Es esperable, no está roto — solo hay que darle un momento.
-
+Además para obtener la información de los productos, se realiza scraping lo cual a diferencia de tener APIs oficiales, hace que el proceso de buscar sea más lento. Por eso se integro una cache para que no se tenga que realizar scraping cada vez que se busca un producto. Si es la primera vez que se busca un producto, se realizará scraping. Si ya se buscó el producto anteriormente, se utilizará la cache haciendo mas rápida la carga de datos.
 ---
 
 ## 🚀 Características Principales

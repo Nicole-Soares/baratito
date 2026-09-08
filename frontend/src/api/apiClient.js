@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8080'
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
 
 class ApiError {
   constructor(status, message, fields = null) {
